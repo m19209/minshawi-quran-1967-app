@@ -306,15 +306,18 @@ function updatePrayerTimes() {
     var totalSecs = Math.floor(diffMs / 1000);
     var hh = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
     var mm = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
-    var ss = String(totalSecs % 60).padStart(2, '0');
     prayerCountdown.textContent = hh + ':' + mm + ':' + ss;
 
-    prayersTimetable.innerHTML = todayPrayers.map(function (p) {
-        var isNext = (p.name === nextAzanPrayer.name);
-        return '<div class="prayer-col ' + (isNext ? 'active-next' : '') + '">' +
-               '<div class="prayer-name">' + p.name + '</div>' +
-               '<div class="prayer-time">' + formatArabicTime(p.date) + '</div></div>';
-    }).join('');
+    var prayerStateKey = currentCity.city + '_' + nextAzanPrayer.name;
+    if (window._lastPrayerStateKey !== prayerStateKey) {
+        window._lastPrayerStateKey = prayerStateKey;
+        prayersTimetable.innerHTML = todayPrayers.map(function (p) {
+            var isNext = (p.name === nextAzanPrayer.name);
+            return '<div class="prayer-col ' + (isNext ? 'active-next' : '') + '">' +
+                   '<div class="prayer-name">' + p.name + '</div>' +
+                   '<div class="prayer-time">' + formatArabicTime(p.date) + '</div></div>';
+        }).join('');
+    }
 
     if (totalSecs === 0 && !isAzanActive) {
         triggerAzan(nextAzanPrayer.name);

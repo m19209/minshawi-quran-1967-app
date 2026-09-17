@@ -1,8 +1,5 @@
 package com.minshawi.quran1967.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,9 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.res.painterResource
-import com.minshawi.quran1967.R
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -51,9 +45,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.minshawi.quran1967.R
 import com.minshawi.quran1967.audio.AudioPlaybackManager
 import com.minshawi.quran1967.data.QuranRepository
 import com.minshawi.quran1967.data.Surah
@@ -64,43 +60,42 @@ import com.minshawi.quran1967.ui.components.AzanOverlayDialog
 import com.minshawi.quran1967.ui.components.PlayerBottomSheet
 import com.minshawi.quran1967.ui.components.PrayerCard
 import com.minshawi.quran1967.ui.components.SettingsDialog
-import com.minshawi.quran1967.ui.theme.AmberGlow
 import com.minshawi.quran1967.ui.theme.BackgroundDark
 import com.minshawi.quran1967.ui.theme.CardBorder
 import com.minshawi.quran1967.ui.theme.EmeraldCard
 import com.minshawi.quran1967.ui.theme.EmeraldDark
-import com.minshawi.quran1967.ui.theme.EmeraldLight
 import com.minshawi.quran1967.ui.theme.EmeraldSurface
 import com.minshawi.quran1967.ui.theme.GoldAccent
 import com.minshawi.quran1967.ui.theme.GoldLight
 import com.minshawi.quran1967.ui.theme.TextLight
-import com.minshawi.quran1967.ui.theme.TextMuted
 import com.minshawi.quran1967.ui.theme.TextSecondary
+
+private val ItemShape = RoundedCornerShape(14.dp)
+private val BadgeShape = RoundedCornerShape(8.dp)
+private val SelectedBorderColor = Color(0x80D4AF37)
+private val SelectedBadgeBg = Color(0x33D4AF37)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
     val context = LocalContext.current
 
-    // Audio & Azan States from AudioPlaybackManager
+    // Audio & Azan States (Playback position is isolated into MiniPlayerBar)
     val currentSurah by AudioPlaybackManager.currentSurah.collectAsState()
     val isPlaying by AudioPlaybackManager.isPlaying.collectAsState()
     val isLoading by AudioPlaybackManager.isLoading.collectAsState()
-    val currentPosition by AudioPlaybackManager.currentPosition.collectAsState()
-    val duration by AudioPlaybackManager.duration.collectAsState()
-    val playbackSpeed by AudioPlaybackManager.playbackSpeed.collectAsState()
-    val repeatMode by AudioPlaybackManager.repeatMode.collectAsState()
     val isAzanActive by AudioPlaybackManager.isAzanActive.collectAsState()
     val activeAzanPrayerName by AudioPlaybackManager.activeAzanPrayerName.collectAsState()
 
     // Location & Prayer Time State
     var selectedLocation by remember { mutableStateOf(CityLocation.EGYPT_CAIRO) }
+    var prayerScheduleKey by remember { mutableStateOf(0) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showFullPlayerSheet by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
-    // Dynamic prayer schedule
-    val prayerSchedule = remember(selectedLocation) {
+    // Dynamic prayer schedule recalculated on location change or when a prayer passes
+    val prayerSchedule = remember(selectedLocation, prayerScheduleKey) {
         PrayerCalculator.calculateTodayPrayers(selectedLocation)
     }
 
@@ -110,17 +105,21 @@ fun HomeScreen() {
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    val screenBgBrush = remember {
+        Brush.verticalGradient(
+            colors = listOf(EmeraldDark, BackgroundDark)
+        )
+    }
+
     Scaffold(
         containerColor = BackgroundDark,
         bottomBar = {
-            // Sticky Mini Player at bottom
+            // Sticky Mini Player at bottom (observes position locally without recomposing list)
             if (currentSurah != null) {
                 MiniPlayerBar(
                     surah = currentSurah!!,
                     isPlaying = isPlaying,
                     isLoading = isLoading,
-                    currentPosition = currentPosition,
-                    duration = duration,
                     onPlayPauseClicked = { AudioPlaybackManager.togglePlayPause() },
                     onBarClicked = { showFullPlayerSheet = true }
                 )
@@ -131,11 +130,7 @@ fun HomeScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(EmeraldDark, BackgroundDark)
-                    )
-                )
+                .background(screenBgBrush)
         ) {
             // Top App Bar
             Row(
@@ -177,21 +172,21 @@ fun HomeScreen() {
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                // 1. Prayer Times Banner Card
-                item {
+                // 1. Prayer Times Banner Card with Real-time 1s Ticker
+                item(key = "prayer_card", contentType = "header") {
                     PrayerCard(
                         schedule = prayerSchedule,
                         onSelectLocationClicked = { showSettingsDialog = true },
                         onSimulateAzanClicked = {
-                            // Test simulate Azan right now
                             AzanScheduler.triggerTestAzan(context, prayerSchedule.currentPrayerName)
                         },
+                        onRefreshSchedule = { prayerScheduleKey++ },
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }
 
-                // 2. Search Bar for Surahs
-                item {
+                // 2. Search Bar
+                item(key = "search_bar", contentType = "header") {
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
@@ -199,14 +194,14 @@ fun HomeScreen() {
                             .fillMaxWidth()
                             .padding(bottom = 12.dp),
                         placeholder = {
-                            Text("ابحث برقم أو اسم السورة (مثال: الكهف، 18)...", color = TextMuted)
+                            Text("ابحث باسم السورة أو رقمها (مثال: الكهف، 18)...", color = TextSecondary)
                         },
                         leadingIcon = {
                             Icon(Icons.Default.Search, contentDescription = null, tint = GoldAccent)
                         },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = GoldAccent,
-                            unfocusedBorderColor = EmeraldCard,
+                            unfocusedBorderColor = CardBorder,
                             focusedContainerColor = EmeraldSurface,
                             unfocusedContainerColor = EmeraldSurface,
                             focusedTextColor = TextLight,
@@ -218,7 +213,7 @@ fun HomeScreen() {
                 }
 
                 // 3. Section Title & 1967 Tag
-                item {
+                item(key = "section_title", contentType = "header") {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -240,8 +235,12 @@ fun HomeScreen() {
                     }
                 }
 
-                // 4. Surahs List Items
-                items(filteredSurahs, key = { it.number }) { surah ->
+                // 4. Surahs List Items (Optimized with key and contentType for smooth 60/120fps scrolling)
+                items(
+                    items = filteredSurahs,
+                    key = { it.number },
+                    contentType = { "surah_item" }
+                ) { surah ->
                     val isCurrent = currentSurah?.number == surah.number
 
                     SurahListItem(
@@ -263,8 +262,8 @@ fun HomeScreen() {
                 }
 
                 // Bottom spacer so list doesn't get covered by mini-player
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
+                item(key = "bottom_spacer", contentType = "spacer") {
+                    Spacer(modifier = Modifier.height(88.dp))
                 }
             }
         }
@@ -281,15 +280,10 @@ fun HomeScreen() {
                 surah = currentSurah!!,
                 isPlaying = isPlaying,
                 isLoading = isLoading,
-                currentPosition = currentPosition,
-                duration = duration,
-                playbackSpeed = playbackSpeed,
-                repeatMode = repeatMode,
                 onPlayPauseClicked = { AudioPlaybackManager.togglePlayPause() },
                 onSeekTo = { AudioPlaybackManager.seekTo(it) },
                 onNextClicked = { AudioPlaybackManager.playNext() },
                 onPrevClicked = { AudioPlaybackManager.playPrevious() },
-                onSpeedChanged = { AudioPlaybackManager.setSpeed(it) },
                 onRepeatClicked = { AudioPlaybackManager.cycleRepeatMode() }
             )
         }
@@ -301,6 +295,7 @@ fun HomeScreen() {
             currentLocation = selectedLocation,
             onLocationSelected = { newLoc ->
                 selectedLocation = newLoc
+                prayerScheduleKey++
                 AzanScheduler.scheduleAllPrayers(context, newLoc)
             },
             onDismiss = { showSettingsDialog = false }
@@ -326,31 +321,49 @@ fun SurahListItem(
     onPlayClicked: () -> Unit,
     onItemClicked: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
+    val itemModifier = if (isSelected) {
+        Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(if (isSelected) EmeraldCard else EmeraldSurface)
-            .border(
-                width = if (isSelected) 1.dp else 0.dp,
-                color = if (isSelected) GoldAccent.copy(alpha = 0.5f) else Color.Transparent,
-                shape = RoundedCornerShape(14.dp)
-            )
-            .clickable { onItemClicked() }
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .clip(ItemShape)
+            .background(EmeraldCard)
+            .border(1.dp, SelectedBorderColor, ItemShape)
+            .clickable(onClick = onItemClicked)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clip(ItemShape)
+            .background(EmeraldSurface)
+            .clickable(onClick = onItemClicked)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+    }
+
+    val badgeModifier = if (isSelected) {
+        Modifier
+            .size(36.dp)
+            .clip(BadgeShape)
+            .background(SelectedBadgeBg)
+            .border(1.dp, GoldAccent, BadgeShape)
+    } else {
+        Modifier
+            .size(36.dp)
+            .clip(BadgeShape)
+            .background(EmeraldDark)
+            .border(1.dp, CardBorder, BadgeShape)
+    }
+
+    Row(
+        modifier = itemModifier,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Surah Number inside Islamic Star Badge
+            // Surah Number inside Islamic Badge
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(if (isSelected) GoldAccent.copy(alpha = 0.2f) else EmeraldDark)
-                    .border(1.dp, if (isSelected) GoldAccent else CardBorder, RoundedCornerShape(8.dp))
+                modifier = badgeModifier
             ) {
                 Text(
                     text = surah.number.toString(),
@@ -379,7 +392,7 @@ fun SurahListItem(
             }
         }
 
-        // Action Play / Equalizer Icon
+        // Action Play / Pause Icon
         IconButton(
             onClick = onPlayClicked,
             modifier = Modifier
@@ -404,29 +417,35 @@ fun MiniPlayerBar(
     surah: Surah,
     isPlaying: Boolean,
     isLoading: Boolean,
-    currentPosition: Long,
-    duration: Long,
     onPlayPauseClicked: () -> Unit,
     onBarClicked: () -> Unit
 ) {
+    val currentPosition by AudioPlaybackManager.currentPosition.collectAsState()
+    val duration by AudioPlaybackManager.duration.collectAsState()
     val progress = if (duration > 0) currentPosition.toFloat() / duration else 0f
+
+    val barBrush = remember {
+        Brush.verticalGradient(
+            listOf(EmeraldCard, EmeraldDark)
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-            .background(EmeraldCard)
-            .border(1.dp, GoldAccent.copy(alpha = 0.3f), RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-            .clickable { onBarClicked() }
+            .background(barBrush)
+            .border(1.dp, CardBorder, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+            .clickable(onClick = onBarClicked)
     ) {
-        // Thin Golden Progress Line at top of Mini Player
+        // Thin Progress Indicator
         LinearProgressIndicator(
             progress = { progress.coerceIn(0f, 1f) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(3.dp),
             color = GoldAccent,
-            trackColor = EmeraldDark
+            trackColor = EmeraldSurface
         )
 
         Row(
@@ -440,34 +459,34 @@ fun MiniPlayerBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                // Wave/Icon
+                // Waveform / Equalizer icon
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(40.dp)
-                        .clip(CircleShape)
+                        .clip(RoundedCornerShape(10.dp))
                         .background(GoldAccent.copy(alpha = 0.15f))
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_graphic_eq),
                         contentDescription = null,
-                        tint = AmberGlow,
+                        tint = GoldAccent,
                         modifier = Modifier.size(22.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
                 Column {
                     Text(
                         text = "سورة ${surah.arabicName}",
-                        style = MaterialTheme.typography.titleMedium.copy(
+                        style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.Bold,
                             color = TextLight
                         )
                     )
                     Text(
-                        text = "ختمة 1967 النقية • الشيخ المنشاوي",
+                        text = "المنشاوي (ختمة 1967)",
                         style = MaterialTheme.typography.labelSmall.copy(color = GoldLight)
                     )
                 }

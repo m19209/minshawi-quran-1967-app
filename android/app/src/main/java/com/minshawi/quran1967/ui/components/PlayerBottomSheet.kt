@@ -23,6 +23,9 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,27 +52,28 @@ fun PlayerBottomSheet(
     surah: Surah,
     isPlaying: Boolean,
     isLoading: Boolean,
-    currentPosition: Long,
-    duration: Long,
-    playbackSpeed: Float = 1.0f,
-    repeatMode: RepeatMode,
     onPlayPauseClicked: () -> Unit,
     onSeekTo: (Long) -> Unit,
     onNextClicked: () -> Unit,
     onPrevClicked: () -> Unit,
-    onSpeedChanged: (Float) -> Unit = {},
     onRepeatClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentPosition by AudioPlaybackManager.currentPosition.collectAsState()
+    val duration by AudioPlaybackManager.duration.collectAsState()
+    val repeatMode by AudioPlaybackManager.repeatMode.collectAsState()
+
+    val sheetBgBrush = remember {
+        Brush.verticalGradient(
+            listOf(EmeraldCard, EmeraldDark)
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-            .background(
-                Brush.verticalGradient(
-                    listOf(EmeraldCard, EmeraldDark)
-                )
-            )
+            .background(sheetBgBrush)
             .border(1.dp, GoldAccent.copy(alpha = 0.2f), RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally

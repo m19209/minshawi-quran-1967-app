@@ -1,11 +1,5 @@
 package com.minshawi.quran1967.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,30 +13,30 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.ui.res.painterResource
-import com.minshawi.quran1967.R
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.minshawi.quran1967.R
 import com.minshawi.quran1967.prayer.DayPrayerSchedule
 import com.minshawi.quran1967.ui.theme.AmberGlow
 import com.minshawi.quran1967.ui.theme.CardBorder
@@ -55,6 +49,8 @@ import com.minshawi.quran1967.ui.theme.GoldLight
 import com.minshawi.quran1967.ui.theme.TextLight
 import com.minshawi.quran1967.ui.theme.TextMuted
 import com.minshawi.quran1967.ui.theme.TextSecondary
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import java.util.Locale
 
 @Composable
@@ -62,35 +58,41 @@ fun PrayerCard(
     schedule: DayPrayerSchedule,
     onSelectLocationClicked: () -> Unit,
     onSimulateAzanClicked: () -> Unit,
+    onRefreshSchedule: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.08f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseScale"
-    )
+    // 1-second reactive ticker for the countdown
+    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
 
-    // Calculate formatted countdown HH:MM:SS
-    val remainingSeconds = (schedule.remainingMillis / 1000).coerceAtLeast(0)
+    LaunchedEffect(schedule.nextPrayerTime) {
+        while (isActive) {
+            delay(1000L)
+            val updated = System.currentTimeMillis()
+            nowMillis = updated
+            if (updated >= schedule.nextPrayerTime.time) {
+                onRefreshSchedule()
+            }
+        }
+    }
+
+    val remainingMillis = (schedule.nextPrayerTime.time - nowMillis).coerceAtLeast(0L)
+    val remainingSeconds = remainingMillis / 1000
     val hours = remainingSeconds / 3600
     val minutes = (remainingSeconds % 3600) / 60
     val seconds = remainingSeconds % 60
     val countdownText = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
 
+    val cardBrush = remember {
+        Brush.verticalGradient(
+            colors = listOf(EmeraldCard, EmeraldSurface)
+        )
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(EmeraldCard, EmeraldSurface)
-                )
-            )
+            .background(cardBrush)
             .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
             .padding(18.dp)
     ) {
@@ -173,8 +175,7 @@ fun PrayerCard(
                             color = AmberGlow,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp
-                        ),
-                        modifier = Modifier.scale(if (hours == 0L && minutes < 5) pulseScale else 1f)
+                        )
                     )
                 }
             }
