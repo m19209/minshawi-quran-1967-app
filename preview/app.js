@@ -743,14 +743,34 @@ function renderSurahs() {
             '<h4>سورة ' + surah.arabicName + '</h4>' +
             '<div class="surah-meta-text">' + surah.englishName + ' \u2022 ' + typeLabel + ' (' + surah.ayahCount + ' آية)</div>' +
             '</div></div>' +
+            '<div class="surah-item-actions">' +
+            '<button class="btn-item-download" data-index="' + (surah.number - 1) + '" title="تحميل سورة ' + surah.arabicName + '" aria-label="تحميل سورة ' + surah.arabicName + '">' + svgDownload(14) + '</button>' +
             '<button class="btn-item-play" data-index="' + (surah.number - 1) + '" aria-label="' + playLabel + '">' + playState + '</button>' +
+            '</div>' +
             '</div>';
     }).join('');
 
     surahsList.querySelectorAll('.surah-item').forEach(function (el) {
-        el.addEventListener('click', function () {
+        el.addEventListener('click', function (e) {
+            if (e.target.closest('.btn-item-download') || e.target.closest('.btn-item-play')) return;
             var idx = parseInt(el.dataset.index);
             if (idx === currentSurahIndex) { togglePlay(); } else { loadSurah(idx, true); }
+        });
+    });
+
+    surahsList.querySelectorAll('.btn-item-play').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var idx = parseInt(btn.dataset.index);
+            if (idx === currentSurahIndex) { togglePlay(); } else { loadSurah(idx, true); }
+        });
+    });
+
+    surahsList.querySelectorAll('.btn-item-download').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var idx = parseInt(btn.dataset.index);
+            triggerDownloadSurah(idx, btn);
         });
     });
 }

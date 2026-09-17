@@ -776,6 +776,37 @@ body {
     color: #061812;
 }
 
+.surah-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-item-download {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    color: var(--gold-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-item-download:hover {
+    background: rgba(212, 175, 55, 0.25);
+    border-color: var(--gold-primary);
+    transform: scale(1.08);
+}
+
+.btn-item-download.downloading {
+    opacity: 0.6;
+    animation: pulse 1s infinite alternate;
+}
+
 /* Azan Active Full-screen Overlay */
 .azan-overlay {
     position: absolute;

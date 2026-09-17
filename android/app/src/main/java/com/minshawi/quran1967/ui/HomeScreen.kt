@@ -253,6 +253,9 @@ fun HomeScreen() {
                                 AudioPlaybackManager.playSurah(surah)
                             }
                         },
+                        onDownloadClicked = {
+                            DownloadHelper.downloadSurah(context, surah)
+                        },
                         onItemClicked = {
                             AudioPlaybackManager.playSurah(surah)
                             showFullPlayerSheet = true
@@ -283,10 +286,7 @@ fun HomeScreen() {
                 onSeekTo = { AudioPlaybackManager.seekTo(it) },
                 onNextClicked = { AudioPlaybackManager.playNext() },
                 onPrevClicked = { AudioPlaybackManager.playPrevious() },
-                onRepeatClicked = { AudioPlaybackManager.cycleRepeatMode() },
-                onDownloadClicked = {
-                    DownloadHelper.downloadSurah(context, currentSurah!!)
-                }
+                onRepeatClicked = { AudioPlaybackManager.cycleRepeatMode() }
             )
         }
     }
@@ -324,6 +324,7 @@ fun SurahListItem(
     isCurrentlyPlaying: Boolean,
     isSelected: Boolean,
     onPlayClicked: () -> Unit,
+    onDownloadClicked: () -> Unit,
     onItemClicked: () -> Unit
 ) {
     val itemModifier = if (isSelected) {
@@ -400,22 +401,45 @@ fun SurahListItem(
             }
         }
 
-        // Action Play / Pause Icon Only (Clean & Spacious)
-        IconButton(
-            onClick = onPlayClicked,
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(if (isSelected) GoldAccent else EmeraldDark)
+        // Action Buttons: Download & Play / Pause
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                painter = painterResource(
-                    if (isCurrentlyPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
-                ),
-                contentDescription = if (isCurrentlyPlaying) "إيقاف مؤقت" else "تشغيل",
-                tint = if (isSelected) EmeraldDark else GoldAccent,
-                modifier = Modifier.size(22.dp)
-            )
+            // Download Button for this Surah
+            IconButton(
+                onClick = onDownloadClicked,
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(EmeraldDark)
+                    .border(1.dp, GoldAccent.copy(alpha = 0.35f), CircleShape)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_download),
+                    contentDescription = "تحميل سورة ${surah.arabicName}",
+                    tint = GoldAccent,
+                    modifier = Modifier.size(19.dp)
+                )
+            }
+
+            // Action Play / Pause Icon
+            IconButton(
+                onClick = onPlayClicked,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(if (isSelected) GoldAccent else EmeraldDark)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        if (isCurrentlyPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
+                    ),
+                    contentDescription = if (isCurrentlyPlaying) "إيقاف مؤقت" else "تشغيل",
+                    tint = if (isSelected) EmeraldDark else GoldAccent,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
         }
     }
 }

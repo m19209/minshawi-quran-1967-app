@@ -62,7 +62,6 @@ fun PlayerBottomSheet(
     onNextClicked: () -> Unit,
     onPrevClicked: () -> Unit,
     onRepeatClicked: () -> Unit,
-    onDownloadClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val currentPosition by AudioPlaybackManager.currentPosition.collectAsState()
@@ -296,13 +295,12 @@ fun PlayerBottomSheet(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Bottom Extras: Repeat Mode & Download Recitation Locally (Symmetrical, Elegant, and Spacious)
+        // Bottom Extras: Repeat Mode Button (Centered & Elegant)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Repeat Toggle Button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -314,7 +312,7 @@ fun PlayerBottomSheet(
                         shape = RoundedCornerShape(12.dp)
                     )
                     .clickable { onRepeatClicked() }
-                    .padding(horizontal = 14.dp, vertical = 9.dp)
+                    .padding(horizontal = 18.dp, vertical = 9.dp)
             ) {
                 Icon(
                     painter = painterResource(if (repeatMode == RepeatMode.ONE) R.drawable.ic_repeat_one else R.drawable.ic_repeat),
@@ -322,7 +320,7 @@ fun PlayerBottomSheet(
                     tint = if (repeatMode != RepeatMode.OFF) GoldAccent else TextSecondary,
                     modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = when (repeatMode) {
                         RepeatMode.OFF -> "تكرار: معطل"
@@ -331,36 +329,6 @@ fun PlayerBottomSheet(
                     },
                     style = MaterialTheme.typography.labelMedium.copy(
                         color = if (repeatMode != RepeatMode.OFF) GoldLight else TextSecondary,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-            }
-
-            // Download Locally Button (تحميل التلاوة على الجهاز)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(EmeraldSurface)
-                    .border(
-                        width = 1.dp,
-                        color = GoldAccent.copy(alpha = 0.35f),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .clickable { onDownloadClicked() }
-                    .padding(horizontal = 14.dp, vertical = 9.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_download),
-                    contentDescription = "تحميل التلاوة على الجهاز",
-                    tint = GoldAccent,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "تحميل السورة",
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        color = GoldLight,
                         fontWeight = FontWeight.Medium
                     )
                 )
