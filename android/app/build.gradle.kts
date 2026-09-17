@@ -63,19 +63,13 @@ dependencies {
     // AndroidX Media3 (ExoPlayer & MediaSessionService for background Quran audio)
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-session:1.3.1")
-    implementation("androidx.media3:media3-ui:1.3.1")
     implementation("androidx.media3:media3-common:1.3.1")
 
     // Islamic Prayer Times Calculation (BatoulApps Adhan)
     implementation("com.batoulapps.adhan:adhan:1.2.1")
 
-    // Coroutines & WorkManager
+    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
-
-    // Image loading
-    implementation("io.coil-kt:coil-compose:2.6.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
