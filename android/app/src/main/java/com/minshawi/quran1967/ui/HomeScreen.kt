@@ -404,7 +404,7 @@ fun SurahListItem(
         // Action Buttons: Download & Play / Pause
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             // Download Button for this Surah
             IconButton(
