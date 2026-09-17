@@ -26,7 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,6 +68,19 @@ fun PlayerBottomSheet(
     val currentPosition by AudioPlaybackManager.currentPosition.collectAsState()
     val duration by AudioPlaybackManager.duration.collectAsState()
     val repeatMode by AudioPlaybackManager.repeatMode.collectAsState()
+
+    var isDragging by remember { mutableStateOf(false) }
+    var dragProgress by remember { mutableStateOf(0f) }
+
+    val displayedPosition = if (isDragging && duration > 0) {
+        (dragProgress * duration).toLong()
+    } else {
+        currentPosition
+    }
+
+    val sliderValue = if (duration > 0) {
+        if (isDragging) dragProgress else (currentPosition.toFloat() / duration)
+    } else 0f
 
     val sheetBgBrush = remember {
         Brush.verticalGradient(
@@ -163,13 +178,17 @@ fun PlayerBottomSheet(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Seek Bar
-        val sliderValue = if (duration > 0) currentPosition.toFloat() / duration else 0f
+        // Seek Bar (Ultra-smooth dragging & instant seek response)
         Slider(
             value = sliderValue.coerceIn(0f, 1f),
             onValueChange = { percent ->
-                val newPos = (percent * duration).toLong()
+                isDragging = true
+                dragProgress = percent
+            },
+            onValueChangeFinished = {
+                val newPos = (dragProgress * duration).toLong()
                 onSeekTo(newPos)
+                isDragging = false
             },
             colors = SliderDefaults.colors(
                 thumbColor = GoldAccent,
@@ -179,14 +198,14 @@ fun PlayerBottomSheet(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Time indicators: Elapsed counts up (00:00...), Remaining counts down without '-' sign
-        val remainingTime = if (duration > 0) (duration - currentPosition).coerceAtLeast(0L) else 0L
+        // Time indicators: Elapsed counts up (00:00...), Remaining counts down smoothly
+        val remainingTime = if (duration > 0) (duration - displayedPosition).coerceAtLeast(0L) else 0L
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = formatDuration(currentPosition),
+                text = formatDuration(displayedPosition),
                 style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
             )
             Text(
@@ -277,18 +296,25 @@ fun PlayerBottomSheet(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Bottom Extras: Repeat Mode (Centered & Clean - No Download Button)
-        Box(
+        // Bottom Extras: Repeat Mode & Download Recitation Locally (Symmetrical, Elegant, and Spacious)
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            // Repeat Toggle Button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .background(EmeraldSurface)
+                    .border(
+                        width = 1.dp,
+                        color = if (repeatMode != RepeatMode.OFF) GoldAccent.copy(alpha = 0.5f) else GoldAccent.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(12.dp)
+                    )
                     .clickable { onRepeatClicked() }
-                    .padding(horizontal = 20.dp, vertical = 9.dp)
+                    .padding(horizontal = 14.dp, vertical = 9.dp)
             ) {
                 Icon(
                     painter = painterResource(if (repeatMode == RepeatMode.ONE) R.drawable.ic_repeat_one else R.drawable.ic_repeat),
@@ -296,7 +322,7 @@ fun PlayerBottomSheet(
                     tint = if (repeatMode != RepeatMode.OFF) GoldAccent else TextSecondary,
                     modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = when (repeatMode) {
                         RepeatMode.OFF -> "تكرار: معطل"
@@ -305,6 +331,36 @@ fun PlayerBottomSheet(
                     },
                     style = MaterialTheme.typography.labelMedium.copy(
                         color = if (repeatMode != RepeatMode.OFF) GoldLight else TextSecondary,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            }
+
+            // Download Locally Button (تحميل التلاوة على الجهاز)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(EmeraldSurface)
+                    .border(
+                        width = 1.dp,
+                        color = GoldAccent.copy(alpha = 0.35f),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clickable { onDownloadClicked() }
+                    .padding(horizontal = 14.dp, vertical = 9.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_download),
+                    contentDescription = "تحميل التلاوة على الجهاز",
+                    tint = GoldAccent,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "تحميل السورة",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = GoldLight,
                         fontWeight = FontWeight.Medium
                     )
                 )

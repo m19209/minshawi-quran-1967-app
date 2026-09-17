@@ -21,22 +21,84 @@ const CONFIG = {
 // 1. CITIES & PRAYER CALCULATION DATA
 // =========================================================================
 const CITIES = [
-    { country: 'مصر', city: 'القاهرة',       lat: 30.0444, lng: 31.2357, fajrAngle: 19.5, ishaAngle: 17.5 },
-    { country: 'مصر', city: 'الإسكندرية',    lat: 31.2001, lng: 29.9187, fajrAngle: 19.5, ishaAngle: 17.5 },
-    { country: 'مصر', city: 'الجيزة',        lat: 30.0131, lng: 31.2089, fajrAngle: 19.5, ishaAngle: 17.5 },
-    { country: 'مصر', city: 'المنصورة',      lat: 31.0409, lng: 31.3785, fajrAngle: 19.5, ishaAngle: 17.5 },
-    { country: 'مصر', city: 'أسوان',         lat: 24.0889, lng: 32.8998, fajrAngle: 19.5, ishaAngle: 17.5 },
-    { country: 'المملكة العربية السعودية', city: 'مكة المكرمة',   lat: 21.3891, lng: 39.8579, fajrAngle: 18.5, ishaInterval: 90 },
-    { country: 'المملكة العربية السعودية', city: 'المدينة المنورة', lat: 24.5247, lng: 39.5692, fajrAngle: 18.5, ishaInterval: 90 },
-    { country: 'المملكة العربية السعودية', city: 'الرياض',        lat: 24.7136, lng: 46.6753, fajrAngle: 18.5, ishaInterval: 90 },
-    { country: 'الإمارات', city: 'دبي',      lat: 25.2048, lng: 55.2708, fajrAngle: 18.2, ishaAngle: 18.2 },
-    { country: 'الإمارات', city: 'أبوظبي',   lat: 24.4539, lng: 54.3773, fajrAngle: 18.2, ishaAngle: 18.2 },
-    { country: 'الأردن',   city: 'عمان',     lat: 31.9454, lng: 35.9284, fajrAngle: 18.0, ishaAngle: 17.0 },
-    { country: 'فلسطين',   city: 'القدس الشريف', lat: 31.7683, lng: 35.2137, fajrAngle: 18.0, ishaAngle: 17.0 },
-    { country: 'سوريا',    city: 'دمشق',     lat: 33.5138, lng: 36.2765, fajrAngle: 18.5, ishaAngle: 17.5 },
-    { country: 'العراق',   city: 'بغداد',    lat: 33.3152, lng: 44.3661, fajrAngle: 18.0, ishaAngle: 17.0 },
-    { country: 'الكويت',   city: 'الكويت',   lat: 29.3759, lng: 47.9774, fajrAngle: 18.0, ishaAngle: 17.5 },
-    { country: 'المغرب',   city: 'الرباط',   lat: 34.0209, lng: -6.8416, fajrAngle: 19.0, ishaAngle: 17.0 }
+    // 1. مصر
+    { country: 'مصر', city: 'القاهرة', lat: 30.0444, lng: 31.2357, fajrAngle: 19.5, ishaAngle: 17.5, region: 'مصر' },
+    { country: 'مصر', city: 'الإسكندرية', lat: 31.2001, lng: 29.9187, fajrAngle: 19.5, ishaAngle: 17.5, region: 'مصر' },
+    { country: 'مصر', city: 'الجيزة', lat: 30.0131, lng: 31.2089, fajrAngle: 19.5, ishaAngle: 17.5, region: 'مصر' },
+    { country: 'مصر', city: 'المنصورة', lat: 31.0409, lng: 31.3785, fajrAngle: 19.5, ishaAngle: 17.5, region: 'مصر' },
+    { country: 'مصر', city: 'أسوان', lat: 24.0889, lng: 32.8998, fajrAngle: 19.5, ishaAngle: 17.5, region: 'مصر' },
+
+    // 2. السعودية
+    { country: 'المملكة العربية السعودية', city: 'مكة المكرمة', lat: 21.3891, lng: 39.8579, fajrAngle: 18.5, ishaInterval: 90, region: 'السعودية' },
+    { country: 'المملكة العربية السعودية', city: 'المدينة المنورة', lat: 24.5247, lng: 39.5692, fajrAngle: 18.5, ishaInterval: 90, region: 'السعودية' },
+    { country: 'المملكة العربية السعودية', city: 'الرياض', lat: 24.7136, lng: 46.6753, fajrAngle: 18.5, ishaInterval: 90, region: 'السعودية' },
+    { country: 'المملكة العربية السعودية', city: 'جدة', lat: 21.4858, lng: 39.1925, fajrAngle: 18.5, ishaInterval: 90, region: 'السعودية' },
+
+    // 3. الإمارات
+    { country: 'الإمارات العربية المتحدة', city: 'دبي', lat: 25.2048, lng: 55.2708, fajrAngle: 18.2, ishaAngle: 18.2, region: 'الخليج' },
+    { country: 'الإمارات العربية المتحدة', city: 'أبوظبي', lat: 24.4539, lng: 54.3773, fajrAngle: 18.2, ishaAngle: 18.2, region: 'الخليج' },
+
+    // 4. الكويت
+    { country: 'الكويت', city: 'مدينة الكويت', lat: 29.3759, lng: 47.9774, fajrAngle: 18.0, ishaAngle: 17.5, region: 'الخليج' },
+
+    // 5. قطر
+    { country: 'قطر', city: 'الدوحة', lat: 25.2854, lng: 51.5310, fajrAngle: 18.0, ishaInterval: 90, region: 'الخليج' },
+
+    // 6. سلطنة عمان
+    { country: 'سلطنة عمان', city: 'مسقط', lat: 23.5880, lng: 58.3829, fajrAngle: 18.0, ishaAngle: 17.0, region: 'الخليج' },
+
+    // 7. البحرين
+    { country: 'البحرين', city: 'المنامة', lat: 26.2285, lng: 50.5860, fajrAngle: 18.0, ishaAngle: 17.0, region: 'الخليج' },
+
+    // 8. فلسطين
+    { country: 'فلسطين', city: 'القدس الشريف', lat: 31.7683, lng: 35.2137, fajrAngle: 18.0, ishaAngle: 17.0, region: 'الشام' },
+    { country: 'فلسطين', city: 'غزة', lat: 31.5017, lng: 34.4668, fajrAngle: 18.0, ishaAngle: 17.0, region: 'الشام' },
+
+    // 9. الأردن
+    { country: 'الأردن', city: 'عمان', lat: 31.9454, lng: 35.9284, fajrAngle: 18.0, ishaAngle: 17.0, region: 'الشام' },
+
+    // 10. سوريا
+    { country: 'سوريا', city: 'دمشق', lat: 33.5138, lng: 36.2765, fajrAngle: 18.5, ishaAngle: 17.5, region: 'الشام' },
+
+    // 11. لبنان
+    { country: 'لبنان', city: 'بيروت', lat: 33.8938, lng: 35.5018, fajrAngle: 18.0, ishaAngle: 17.0, region: 'الشام' },
+
+    // 12. العراق
+    { country: 'العراق', city: 'بغداد', lat: 33.3152, lng: 44.3661, fajrAngle: 18.0, ishaAngle: 17.0, region: 'العراق' },
+    { country: 'العراق', city: 'البصرة', lat: 30.5081, lng: 47.7835, fajrAngle: 18.0, ishaAngle: 17.0, region: 'العراق' },
+
+    // 13. اليمن
+    { country: 'اليمن', city: 'صنعاء', lat: 15.3694, lng: 44.1910, fajrAngle: 18.0, ishaAngle: 17.0, region: 'اليمن' },
+    { country: 'اليمن', city: 'عدن', lat: 12.7855, lng: 45.0187, fajrAngle: 18.0, ishaAngle: 17.0, region: 'اليمن' },
+
+    // 14. السودان
+    { country: 'السودان', city: 'الخرطوم', lat: 15.5007, lng: 32.5599, fajrAngle: 19.5, ishaAngle: 17.5, region: 'أفريقيا' },
+
+    // 15. ليبيا
+    { country: 'ليبيا', city: 'طرابلس', lat: 32.8872, lng: 13.1913, fajrAngle: 18.0, ishaAngle: 17.0, region: 'المغرب العربي' },
+
+    // 16. تونس
+    { country: 'تونس', city: 'تونس العاصمة', lat: 36.8065, lng: 10.1815, fajrAngle: 18.0, ishaAngle: 17.0, region: 'المغرب العربي' },
+
+    // 17. الجزائر
+    { country: 'الجزائر', city: 'الجزائر العاصمة', lat: 36.7538, lng: 3.0588, fajrAngle: 18.0, ishaAngle: 17.0, region: 'المغرب العربي' },
+    { country: 'الجزائر', city: 'وهران', lat: 35.6987, lng: -0.6349, fajrAngle: 18.0, ishaAngle: 17.0, region: 'المغرب العربي' },
+
+    // 18. المغرب
+    { country: 'المغرب', city: 'الرباط', lat: 34.0209, lng: -6.8416, fajrAngle: 19.0, ishaAngle: 17.0, region: 'المغرب العربي' },
+    { country: 'المغرب', city: 'الدار البيضاء', lat: 33.5731, lng: -7.5898, fajrAngle: 19.0, ishaAngle: 17.0, region: 'المغرب العربي' },
+
+    // 19. موريتانيا
+    { country: 'موريتانيا', city: 'نواكشوط', lat: 18.0735, lng: -15.9582, fajrAngle: 18.0, ishaAngle: 17.0, region: 'المغرب العربي' },
+
+    // 20. الصومال
+    { country: 'الصومال', city: 'مقديشو', lat: 2.0469, lng: 45.3182, fajrAngle: 18.0, ishaAngle: 17.0, region: 'أفريقيا' },
+
+    // 21. جيبوتي
+    { country: 'جيبوتي', city: 'مدينة جيبوتي', lat: 11.5721, lng: 43.1456, fajrAngle: 18.0, ishaAngle: 17.0, region: 'أفريقيا' },
+
+    // 22. جزر القمر
+    { country: 'جزر القمر', city: 'موروني', lat: -11.7172, lng: 43.2473, fajrAngle: 18.0, ishaAngle: 17.0, region: 'أفريقيا' }
 ];
 
 let currentCity       = CITIES[CONFIG.defaultCityIndex];
@@ -586,7 +648,15 @@ quranAudio.addEventListener('ended', function () {
     }
 });
 
+// Ultra-smooth seek: update timestamps live on input, commit audio seek on change/release
 seekSlider.addEventListener('input', function () {
+    var dur = getEffectiveDuration(quranAudio.duration);
+    if (!dur || dur <= 0) return;
+    var newTime = (seekSlider.value / 100) * dur;
+    updateTimeDisplay(newTime, dur);
+});
+
+seekSlider.addEventListener('change', function () {
     var dur = getEffectiveDuration(quranAudio.duration);
     if (!dur || dur <= 0) return;
     var newTime = (seekSlider.value / 100) * dur;
@@ -712,23 +782,41 @@ filterChips.forEach(function (chip) {
 // 10. SETTINGS & LOCATION MODAL
 // =========================================================================
 
+let modalCitySearchQuery = '';
+const citySearchInputModal = document.getElementById('citySearchInputModal');
+const btnDownloadSurah = document.getElementById('btnDownloadSurah');
+
+if (btnDownloadSurah) {
+    btnDownloadSurah.addEventListener('click', function () {
+        triggerDownloadSurah(currentSurahIndex, btnDownloadSurah);
+    });
+}
+
 function renderCitiesPicker() {
     if (currentCityTitle) {
         currentCityTitle.textContent = currentCity.country + ' - ' + currentCity.city;
     }
     if (currentCityMethod) {
-        var methodDesc = 'طريقة الحساب: ' + (currentCity.country.includes('السعودية') ? 'أم القرى (مكة المكرمة)' : (currentCity.country === 'مصر' ? 'الهيئة المصرية العامة للمساحة' : 'رابطة العالم الإسلامي'));
+        var methodDesc = 'طريقة الحساب: ' + (currentCity.country.includes('السعودية') ? 'أم القرى (مكة المكرمة)' : (currentCity.country === 'مصر' ? 'الهيئة المصرية العامة للمساحة' : (currentCity.country.includes('الإمارات') ? 'دائرة الشؤون الإسلامية (دبي)' : (currentCity.country === 'قطر' ? 'وزارة الأوقاف القطرية' : (currentCity.country === 'الكويت' ? 'وزارة الأوقاف الكويتية' : 'رابطة العالم الإسلامي')))));
         currentCityMethod.textContent = methodDesc;
     }
 
+    var q = (modalCitySearchQuery || '').trim().toLowerCase();
+
     var filtered = CITIES.map(function (c, idx) { return { city: c, idx: idx }; }).filter(function (item) {
-        if (activeCountryFilter === 'all') return true;
-        if (activeCountryFilter === 'مصر') return item.city.country === 'مصر';
-        if (activeCountryFilter === 'السعودية') return item.city.country.includes('السعودية');
-        if (activeCountryFilter === 'الإمارات') return item.city.country.includes('الإمارات');
-        if (activeCountryFilter === 'other') return item.city.country !== 'مصر' && !item.city.country.includes('السعودية') && !item.city.country.includes('الإمارات');
-        return true;
+        var c = item.city;
+        var matchesRegion = true;
+        if (activeCountryFilter !== 'all') {
+            matchesRegion = (c.region === activeCountryFilter);
+        }
+        var matchesQuery = !q || c.city.toLowerCase().includes(q) || c.country.toLowerCase().includes(q);
+        return matchesRegion && matchesQuery;
     });
+
+    if (filtered.length === 0) {
+        citiesPickerList.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">لا توجد نتائج مطابقة</div>';
+        return;
+    }
 
     citiesPickerList.innerHTML = filtered.map(function (entry) {
         var c = entry.city;
@@ -748,12 +836,19 @@ function renderCitiesPicker() {
     });
 }
 
+if (citySearchInputModal) {
+    citySearchInputModal.addEventListener('input', function () {
+        modalCitySearchQuery = citySearchInputModal.value;
+        renderCitiesPicker();
+    });
+}
+
 if (cityFilterChips) {
     cityFilterChips.querySelectorAll('.chip').forEach(function (chip) {
         chip.addEventListener('click', function () {
             cityFilterChips.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('active'); });
             chip.classList.add('active');
-            activeCountryFilter = chip.dataset.country;
+            activeCountryFilter = chip.dataset.region || chip.dataset.country || 'all';
             renderCitiesPicker();
         });
     });

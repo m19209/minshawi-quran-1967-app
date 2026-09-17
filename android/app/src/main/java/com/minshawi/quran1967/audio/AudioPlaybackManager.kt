@@ -276,7 +276,7 @@ object AudioPlaybackManager {
                         _duration.value = player.duration.coerceAtLeast(0L)
                     }
                 }
-                delay(500)
+                delay(100)
             }
         }
     }

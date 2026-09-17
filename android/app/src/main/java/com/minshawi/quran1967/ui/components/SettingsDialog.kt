@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -42,11 +43,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.batoulapps.adhan.CalculationMethod
 import com.minshawi.quran1967.R
 import com.minshawi.quran1967.prayer.CityLocation
 import com.minshawi.quran1967.ui.theme.AmberGlow
@@ -66,11 +71,27 @@ private data class AzanVoiceItem(
 )
 
 private enum class CountryCategory(val label: String) {
-    ALL("الكل"),
+    ALL("الكل (22 دولة)"),
     EGYPT("مصر 🇪🇬"),
     SAUDI("السعودية 🇸🇦"),
-    UAE("الإمارات 🇦🇪"),
-    OTHER("بلدان أخرى 🌍")
+    GULF("دول الخليج 🌴"),
+    LEVANT("فلسطين والشام 🕌"),
+    IRAQ("العراق 🏛️"),
+    MAGHREB("المغرب العربي 🇲🇦"),
+    SUDAN_YEMEN("السودان واليمن 🌍"),
+    HORN("القرن الأفريقي 🧭")
+}
+
+private fun formatCalculationMethodArabic(method: CalculationMethod): String {
+    return when (method) {
+        CalculationMethod.EGYPTIAN -> "الهيئة المصرية العامة للمساحة"
+        CalculationMethod.UMM_AL_QURA -> "جامعة أم القرى (مكة المكرمة)"
+        CalculationMethod.DUBAI -> "دائرة الشؤون الإسلامية (دبي)"
+        CalculationMethod.QATAR -> "وزارة الأوقاف القطرية"
+        CalculationMethod.KUWAIT -> "وزارة الأوقاف (الكويت)"
+        CalculationMethod.MUSLIM_WORLD_LEAGUE -> "رابطة العالم الإسلامي"
+        else -> method.name
+    }
 }
 
 @Composable
@@ -82,6 +103,7 @@ fun SettingsDialog(
 ) {
     var selectedVoiceId by remember { mutableStateOf("minshawi") }
     var selectedCategory by remember { mutableStateOf(CountryCategory.ALL) }
+    var citySearchQuery by remember { mutableStateOf("") }
 
     val azanVoices = remember {
         listOf(
@@ -106,15 +128,25 @@ fun SettingsDialog(
         )
     }
 
-    val filteredCities = remember(selectedCategory) {
-        when (selectedCategory) {
-            CountryCategory.ALL -> CityLocation.DEFAULT_CITIES
-            CountryCategory.EGYPT -> CityLocation.DEFAULT_CITIES.filter { it.countryName == "مصر" }
-            CountryCategory.SAUDI -> CityLocation.DEFAULT_CITIES.filter { it.countryName.contains("السعودية") }
-            CountryCategory.UAE -> CityLocation.DEFAULT_CITIES.filter { it.countryName.contains("الإمارات") }
-            CountryCategory.OTHER -> CityLocation.DEFAULT_CITIES.filter {
-                it.countryName !in listOf("مصر", "المملكة العربية السعودية", "الإمارات العربية المتحدة")
+    val filteredCities = remember(selectedCategory, citySearchQuery) {
+        val q = citySearchQuery.trim().lowercase()
+        CityLocation.DEFAULT_CITIES.filter { city ->
+            val matchesCategory = when (selectedCategory) {
+                CountryCategory.ALL -> true
+                CountryCategory.EGYPT -> city.countryName == "مصر"
+                CountryCategory.SAUDI -> city.countryName.contains("السعودية")
+                CountryCategory.GULF -> city.countryName in listOf("الإمارات العربية المتحدة", "الكويت", "قطر", "سلطنة عمان", "البحرين")
+                CountryCategory.LEVANT -> city.countryName in listOf("فلسطين", "الأردن", "سوريا", "لبنان")
+                CountryCategory.IRAQ -> city.countryName == "العراق"
+                CountryCategory.MAGHREB -> city.countryName in listOf("المغرب", "الجزائر", "تونس", "ليبيا", "موريتانيا")
+                CountryCategory.SUDAN_YEMEN -> city.countryName in listOf("السودان", "اليمن")
+                CountryCategory.HORN -> city.countryName in listOf("الصومال", "جيبوتي", "جزر القمر")
             }
+            val matchesSearch = q.isEmpty() ||
+                city.cityName.lowercase().contains(q) ||
+                city.countryName.lowercase().contains(q)
+
+            matchesCategory && matchesSearch
         }
     }
 
@@ -127,8 +159,8 @@ fun SettingsDialog(
             color = EmeraldCard,
             border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.5f)),
             modifier = Modifier
-                .fillMaxWidth(0.93f)
-                .heightIn(max = 660.dp)
+                .fillMaxWidth(0.94f)
+                .heightIn(max = 680.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -172,7 +204,7 @@ fun SettingsDialog(
                                 )
                             )
                             Text(
-                                text = "ضبط الحساب الفلكي وصوت المؤذن",
+                                text = "العالم العربي كاملاً (22 دولة)",
                                 style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
                             )
                         }
@@ -215,14 +247,14 @@ fun SettingsDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "المدينة الحالية: ${currentLocation.displayName}",
+                            text = "الموقع الحالي: ${currentLocation.displayName}",
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = GoldLight,
                                 fontWeight = FontWeight.Bold
                             )
                         )
                         Text(
-                            text = "طريقة الحساب: ${currentLocation.calculationMethod.name}",
+                            text = "طريقة الحساب: ${formatCalculationMethodArabic(currentLocation.calculationMethod)}",
                             style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
                         )
                     }
@@ -232,7 +264,7 @@ fun SettingsDialog(
 
                 // Section: City Selection & Easy Country Filter
                 Text(
-                    text = "اختر دولتك ومدينتك للحساب الفلكي:",
+                    text = "اختر مدينتك من دول العالم العربي (22 دولة):",
                     style = MaterialTheme.typography.labelLarge.copy(
                         color = GoldLight,
                         fontWeight = FontWeight.Bold
@@ -241,7 +273,57 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Country Chips for Quick 1-Tap Access
+                // Quick Search Bar for Instant Filtering
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(EmeraldDark)
+                        .border(1.dp, GoldAccent.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_search),
+                        contentDescription = null,
+                        tint = GoldAccent.copy(alpha = 0.8f),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (citySearchQuery.isEmpty()) {
+                            Text(
+                                text = "ابحث بالاسم (مثال: القدس، دبي، وهران، طرابلس...)",
+                                style = TextStyle(color = TextSecondary, fontSize = 12.sp)
+                            )
+                        }
+                        BasicTextField(
+                            value = citySearchQuery,
+                            onValueChange = { citySearchQuery = it },
+                            textStyle = TextStyle(color = TextLight, fontSize = 12.sp, fontWeight = FontWeight.Medium),
+                            cursorBrush = SolidColor(GoldAccent),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    if (citySearchQuery.isNotEmpty()) {
+                        IconButton(
+                            onClick = { citySearchQuery = "" },
+                            modifier = Modifier.size(20.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "مسح",
+                                tint = TextSecondary,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Country Category Chips for Quick 1-Tap Access
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -287,59 +369,67 @@ fun SettingsDialog(
                         .padding(4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    filteredCities.forEach { city ->
-                        val isCitySelected = (city.cityName == currentLocation.cityName && city.countryName == currentLocation.countryName)
+                    if (filteredCities.isEmpty()) {
+                        Text(
+                            text = "لا توجد نتائج مطابقة للبحث",
+                            style = MaterialTheme.typography.bodySmall.copy(color = TextSecondary),
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    } else {
+                        filteredCities.forEach { city ->
+                            val isCitySelected = (city.cityName == currentLocation.cityName && city.countryName == currentLocation.countryName)
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(
-                                    if (isCitySelected) GoldAccent.copy(alpha = 0.2f) else EmeraldSurface
-                                )
-                                .border(
-                                    width = if (isCitySelected) 1.dp else 0.dp,
-                                    color = if (isCitySelected) GoldAccent else Color.Transparent,
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                                .clickable { onLocationSelected(city) }
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_location_city),
-                                    contentDescription = null,
-                                    tint = if (isCitySelected) GoldAccent else TextSecondary,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
-                                    Text(
-                                        text = city.displayName,
-                                        style = MaterialTheme.typography.bodyMedium.copy(
-                                            color = if (isCitySelected) GoldLight else TextLight,
-                                            fontWeight = if (isCitySelected) FontWeight.Bold else FontWeight.Normal
-                                        )
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(
+                                        if (isCitySelected) GoldAccent.copy(alpha = 0.2f) else EmeraldSurface
                                     )
-                                    Text(
-                                        text = "طريقة الحساب: ${city.calculationMethod.name}",
-                                        style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
+                                    .border(
+                                        width = if (isCitySelected) 1.dp else 0.dp,
+                                        color = if (isCitySelected) GoldAccent else Color.Transparent,
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                                    .clickable { onLocationSelected(city) }
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_location_city),
+                                        contentDescription = null,
+                                        tint = if (isCitySelected) GoldAccent else TextSecondary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            text = city.displayName,
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                color = if (isCitySelected) GoldLight else TextLight,
+                                                fontWeight = if (isCitySelected) FontWeight.Bold else FontWeight.Normal
+                                            )
+                                        )
+                                        Text(
+                                            text = "طريقة الحساب: ${formatCalculationMethodArabic(city.calculationMethod)}",
+                                            style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
+                                        )
+                                    }
+                                }
+
+                                if (isCitySelected) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "محدد",
+                                        tint = GoldAccent,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                 }
-                            }
-
-                            if (isCitySelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "محدد",
-                                    tint = GoldAccent,
-                                    modifier = Modifier.size(18.dp)
-                                )
                             }
                         }
                     }

@@ -283,7 +283,10 @@ fun HomeScreen() {
                 onSeekTo = { AudioPlaybackManager.seekTo(it) },
                 onNextClicked = { AudioPlaybackManager.playNext() },
                 onPrevClicked = { AudioPlaybackManager.playPrevious() },
-                onRepeatClicked = { AudioPlaybackManager.cycleRepeatMode() }
+                onRepeatClicked = { AudioPlaybackManager.cycleRepeatMode() },
+                onDownloadClicked = {
+                    DownloadHelper.downloadSurah(context, currentSurah!!)
+                }
             )
         }
     }

@@ -563,6 +563,35 @@ body {
     box-shadow: 0 6px 22px rgba(212, 175, 55, 0.6);
 }
 
+/* Player Bottom Action */
+.player-bottom-extras {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.btn-download-local {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-gold);
+    color: var(--gold-light);
+    padding: 7px 16px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-download-local:hover {
+    background: rgba(212, 175, 55, 0.22);
+    border-color: var(--gold-primary);
+    transform: scale(1.04);
+}
+
 /* Surahs Section */
 .surahs-section {
     display: flex;
