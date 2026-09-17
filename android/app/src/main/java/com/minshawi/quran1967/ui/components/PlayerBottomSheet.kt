@@ -1,0 +1,344 @@
+package com.minshawi.quran1967.ui.components
+
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode as AnimRepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.RepeatOne
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.minshawi.quran1967.audio.AudioPlaybackManager
+import com.minshawi.quran1967.audio.RepeatMode
+import com.minshawi.quran1967.data.Surah
+import com.minshawi.quran1967.ui.theme.AmberGlow
+import com.minshawi.quran1967.ui.theme.EmeraldCard
+import com.minshawi.quran1967.ui.theme.EmeraldDark
+import com.minshawi.quran1967.ui.theme.EmeraldLight
+import com.minshawi.quran1967.ui.theme.EmeraldSurface
+import com.minshawi.quran1967.ui.theme.GoldAccent
+import com.minshawi.quran1967.ui.theme.GoldDark
+import com.minshawi.quran1967.ui.theme.GoldLight
+import com.minshawi.quran1967.ui.theme.TextLight
+import com.minshawi.quran1967.ui.theme.TextSecondary
+import java.util.Locale
+
+@Composable
+fun PlayerBottomSheet(
+    surah: Surah,
+    isPlaying: Boolean,
+    isLoading: Boolean,
+    currentPosition: Long,
+    duration: Long,
+    playbackSpeed: Float,
+    repeatMode: RepeatMode,
+    onPlayPauseClicked: () -> Unit,
+    onSeekTo: (Long) -> Unit,
+    onNextClicked: () -> Unit,
+    onPrevClicked: () -> Unit,
+    onSpeedChanged: (Float) -> Unit,
+    onRepeatClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+            .background(
+                Brush.verticalGradient(
+                    listOf(EmeraldCard, EmeraldDark)
+                )
+            )
+            .border(1.dp, GoldAccent.copy(alpha = 0.2f), RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Drag Handle
+        Box(
+            modifier = Modifier
+                .width(44.dp)
+                .height(4.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(GoldAccent.copy(alpha = 0.4f))
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Badge: 1967 Pure Edition
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(14.dp))
+                .background(GoldAccent.copy(alpha = 0.15f))
+                .border(1.dp, GoldAccent.copy(alpha = 0.3f), RoundedCornerShape(14.dp))
+                .padding(horizontal = 14.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "الختمة المرتلة 1967 النقية النادرة (إذاعة القرآن الكريم)",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = GoldLight,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Clean static header badge (no rotating element)
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(GoldAccent.copy(alpha = 0.15f))
+                .padding(horizontal = 12.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = String.format("%03d", surah.number),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = GoldAccent,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Text(
+                    text = "${surah.ayahCount} آية",
+                    style = MaterialTheme.typography.labelSmall.copy(color = GoldLight.copy(alpha = 0.8f))
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        // Surah details
+        Text(
+            text = "سورة ${surah.arabicName} (${surah.englishName})",
+            style = MaterialTheme.typography.headlineMedium.copy(
+                color = TextLight,
+                fontWeight = FontWeight.Bold
+            )
+        )
+        Text(
+            text = "القارئ الشيخ محمد صديق المنشاوي - ${if (surah.isMakki) "مكية" else "مدنية"}",
+            style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Seek Bar
+        val sliderValue = if (duration > 0) currentPosition.toFloat() / duration else 0f
+        Slider(
+            value = sliderValue.coerceIn(0f, 1f),
+            onValueChange = { percent ->
+                val newPos = (percent * duration).toLong()
+                onSeekTo(newPos)
+            },
+            colors = SliderDefaults.colors(
+                thumbColor = GoldAccent,
+                activeTrackColor = GoldAccent,
+                inactiveTrackColor = EmeraldSurface
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Time indicators
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = formatDuration(currentPosition),
+                style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
+            )
+            Text(
+                text = formatDuration(duration),
+                style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Player Controls: Prev, SeekBack, Play/Pause, SeekForward, Next
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Previous Surah
+            IconButton(onClick = onPrevClicked) {
+                Icon(
+                    imageVector = Icons.Default.SkipPrevious,
+                    contentDescription = "السورة السابقة",
+                    tint = TextLight,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            // Seek Backward 10s
+            IconButton(onClick = { AudioPlaybackManager.seekBackward(10000L) }) {
+                Icon(
+                    imageVector = Icons.Default.FastRewind,
+                    contentDescription = "ترجيع 10 ثواني",
+                    tint = GoldLight,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+
+            // Central Play / Pause Button
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(AmberGlow, GoldAccent)
+                        )
+                    )
+                    .clickable { onPlayPauseClicked() }
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(32.dp),
+                        color = EmeraldDark,
+                        strokeWidth = 3.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = if (isPlaying) "إيقاف مؤقت" else "تشغيل",
+                        tint = EmeraldDark,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            }
+
+            // Seek Forward 10s
+            IconButton(onClick = { AudioPlaybackManager.seekForward(10000L) }) {
+                Icon(
+                    imageVector = Icons.Default.FastForward,
+                    contentDescription = "تقديم 10 ثواني",
+                    tint = GoldLight,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+
+            // Next Surah
+            IconButton(onClick = onNextClicked) {
+                Icon(
+                    imageVector = Icons.Default.SkipNext,
+                    contentDescription = "السورة التالية",
+                    tint = TextLight,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Bottom Extras: Speed, Repeat Mode
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Speed Toggle Button
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(EmeraldSurface)
+                    .clickable {
+                        val nextSpeed = when (playbackSpeed) {
+                            1.0f -> 1.25f
+                            1.25f -> 1.5f
+                            else -> 1.0f
+                        }
+                        onSpeedChanged(nextSpeed)
+                    }
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = "السرعة: ${playbackSpeed}x",
+                    style = MaterialTheme.typography.labelSmall.copy(color = GoldLight)
+                )
+            }
+
+            // Repeat Toggle Button
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(EmeraldSurface)
+                    .clickable { onRepeatClicked() }
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Icon(
+                    imageVector = if (repeatMode == RepeatMode.ONE) Icons.Default.RepeatOne else Icons.Default.Repeat,
+                    contentDescription = "التكرار",
+                    tint = if (repeatMode != RepeatMode.OFF) GoldAccent else TextSecondary,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = when (repeatMode) {
+                        RepeatMode.OFF -> "تكرار: معطل"
+                        RepeatMode.ALL -> "تكرار: الكل"
+                        RepeatMode.ONE -> "تكرار: السورة"
+                    },
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = if (repeatMode != RepeatMode.OFF) GoldAccent else TextSecondary
+                    )
+                )
+            }
+        }
+    }
+}
+
+private fun formatDuration(millis: Long): String {
+    val totalSeconds = (millis / 1000).coerceAtLeast(0)
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+}

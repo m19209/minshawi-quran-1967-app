@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">مصحف المنشاوي 1967 والأذان</string>
+    <string name="app_subtitle">الختمة المرتلة النقية النادرة (إذاعة دمشق والقاهرة 1967)</string>
+    <string name="sheikh_name">الشيخ محمد صديق المنشاوي</string>
+    <string name="edition_badge">ختمة 1967 النقية</string>
+    
+    <!-- Prayer Names -->
+    <string name="prayer_fajr">الفجر</string>
+    <string name="prayer_sunrise">الشروق</string>
+    <string name="prayer_dhuhr">الظهر</string>
+    <string name="prayer_asr">العصر</string>
+    <string name="prayer_maghrib">المغرب</string>
+    <string name="prayer_isha">العشاء</string>
+    
+    <!-- Prayer UI -->
+    <string name="current_prayer">الوقت الحالي:</string>
+    <string name="next_prayer">الصلاة القادمة:</string>
+    <string name="remaining_time">الوقت المتبقي للأذان:</string>
+    <string name="select_country_city">اختر الدولة والمدينة</string>
+    
+    <!-- Azan & Playback -->
+    <string name="azan_now">حان الآن موعد أذان %s</string>
+    <string name="azan_playing_notice">يُرفع الآن الأذان، وستستأنف التلاوة تلقائياً بعد انتهائه</string>
+    <string name="stop_azan_resume">إيقاف الأذان واستئناف التلاوة الآن</string>
+    <string name="simulate_azan">محاكاة رفع الأذان الآن</string>
+    
+    <!-- Player Controls -->
+    <string name="play">تشغيل</string>
+    <string name="pause">إيقاف مؤقت</string>
+    <string name="next_surah">السورة التالية</string>
+    <string name="previous_surah">السورة السابقة</string>
+    <string name="search_surah">ابحث عن سورة...</string>
+    <string name="makki">مكية</string>
+    <string name="madani">مدنية</string>
+    <string name="ayahs_count">%d آية</string>
+</resources>
