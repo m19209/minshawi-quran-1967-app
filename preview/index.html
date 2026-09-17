@@ -262,8 +262,24 @@
                             </button>
                         </div>
                         <div class="modal-body">
+                            <div class="current-city-banner" id="currentCityBanner">
+                                <span class="loc-icon">📍</span>
+                                <div>
+                                    <div class="current-city-title" id="currentCityTitle">مصر - القاهرة</div>
+                                    <div class="current-city-method" id="currentCityMethod">طريقة الحساب: الهيئة المصرية العامة للمساحة</div>
+                                </div>
+                            </div>
+
                             <p class="modal-hint">اختر دولتك ومدينتك لحساب أوقات الأذان الفلكية بدقة متناهية:</p>
                             
+                            <div class="city-filter-chips" id="cityFilterChips">
+                                <button class="chip active" data-country="all">الكل</button>
+                                <button class="chip" data-country="مصر">مصر 🇪🇬</button>
+                                <button class="chip" data-country="السعودية">السعودية 🇸🇦</button>
+                                <button class="chip" data-country="الإمارات">الإمارات 🇦🇪</button>
+                                <button class="chip" data-country="other">بلدان أخرى 🌍</button>
+                            </div>
+
                             <div class="cities-picker-list" id="citiesPickerList">
                                 <!-- Populated dynamically -->
                             </div>

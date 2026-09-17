@@ -95,6 +95,10 @@ const btnCloseSettings = document.getElementById('btnCloseSettings');
 const btnSaveSettings  = document.getElementById('btnSaveSettings');
 const citiesPickerList = document.getElementById('citiesPickerList');
 const azanVoiceSelect  = document.getElementById('azanVoiceSelect');
+const currentCityTitle = document.getElementById('currentCityTitle');
+const currentCityMethod = document.getElementById('currentCityMethod');
+const cityFilterChips  = document.getElementById('cityFilterChips');
+let activeCountryFilter = 'all';
 
 // =========================================================================
 // 3. APPLICATION STATE
@@ -669,28 +673,14 @@ function renderSurahs() {
             '<h4>سورة ' + surah.arabicName + '</h4>' +
             '<div class="surah-meta-text">' + surah.englishName + ' \u2022 ' + typeLabel + ' (' + surah.ayahCount + ' آية)</div>' +
             '</div></div>' +
-            '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<button class="btn-download" data-index="' + (surah.number - 1) + '" ' +
-            'title="تنزيل التلاوة" aria-label="تنزيل سورة ' + surah.arabicName + '">' +
-            svgDownload(15) + '</button>' +
             '<button class="btn-item-play" data-index="' + (surah.number - 1) + '" aria-label="' + playLabel + '">' + playState + '</button>' +
-            '</div></div>';
+            '</div>';
     }).join('');
 
     surahsList.querySelectorAll('.surah-item').forEach(function (el) {
-        el.addEventListener('click', function (e) {
-            if (e.target.closest('.btn-download')) return;
+        el.addEventListener('click', function () {
             var idx = parseInt(el.dataset.index);
             if (idx === currentSurahIndex) { togglePlay(); } else { loadSurah(idx, true); }
-        });
-    });
-
-    // Download button click handler
-    surahsList.querySelectorAll('.btn-download').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            var idx = parseInt(btn.dataset.index);
-            triggerDownloadSurah(idx, btn);
         });
     });
 }
@@ -723,7 +713,26 @@ filterChips.forEach(function (chip) {
 // =========================================================================
 
 function renderCitiesPicker() {
-    citiesPickerList.innerHTML = CITIES.map(function (c, idx) {
+    if (currentCityTitle) {
+        currentCityTitle.textContent = currentCity.country + ' - ' + currentCity.city;
+    }
+    if (currentCityMethod) {
+        var methodDesc = 'طريقة الحساب: ' + (currentCity.country.includes('السعودية') ? 'أم القرى (مكة المكرمة)' : (currentCity.country === 'مصر' ? 'الهيئة المصرية العامة للمساحة' : 'رابطة العالم الإسلامي'));
+        currentCityMethod.textContent = methodDesc;
+    }
+
+    var filtered = CITIES.map(function (c, idx) { return { city: c, idx: idx }; }).filter(function (item) {
+        if (activeCountryFilter === 'all') return true;
+        if (activeCountryFilter === 'مصر') return item.city.country === 'مصر';
+        if (activeCountryFilter === 'السعودية') return item.city.country.includes('السعودية');
+        if (activeCountryFilter === 'الإمارات') return item.city.country.includes('الإمارات');
+        if (activeCountryFilter === 'other') return item.city.country !== 'مصر' && !item.city.country.includes('السعودية') && !item.city.country.includes('الإمارات');
+        return true;
+    });
+
+    citiesPickerList.innerHTML = filtered.map(function (entry) {
+        var c = entry.city;
+        var idx = entry.idx;
         var isSelected = (c.city === currentCity.city && c.country === currentCity.country);
         return '<div class="city-pick-item ' + (isSelected ? 'selected' : '') + '" data-city-idx="' + idx + '" ' +
                'role="option" aria-selected="' + isSelected + '">' +
@@ -735,6 +744,17 @@ function renderCitiesPicker() {
             currentCity = CITIES[parseInt(el.dataset.cityIdx)];
             renderCitiesPicker();
             updatePrayerTimes();
+        });
+    });
+}
+
+if (cityFilterChips) {
+    cityFilterChips.querySelectorAll('.chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            cityFilterChips.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('active'); });
+            chip.classList.add('active');
+            activeCountryFilter = chip.dataset.country;
+            renderCitiesPicker();
         });
     });
 }

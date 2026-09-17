@@ -747,37 +747,6 @@ body {
     color: #061812;
 }
 
-.btn-download {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: rgba(212, 175, 55, 0.08);
-    border: 1px solid var(--border-gold);
-    color: var(--gold-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition-fast);
-    padding: 0;
-}
-
-.btn-download:hover {
-    background: rgba(212, 175, 55, 0.22);
-    color: var(--gold-light);
-    border-color: var(--gold-primary);
-    transform: scale(1.08);
-}
-
-.btn-download:active {
-    transform: scale(0.94);
-}
-
-.btn-download.downloading {
-    opacity: 0.6;
-    cursor: wait;
-}
-
 /* Azan Active Full-screen Overlay */
 .azan-overlay {
     position: absolute;
@@ -967,6 +936,38 @@ body {
 .modal-hint {
     font-size: 12px;
     color: var(--text-secondary);
+}
+
+.current-city-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(10, 34, 26, 0.7);
+    border: 1px solid var(--border-gold);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+}
+
+.current-city-banner .loc-icon {
+    font-size: 20px;
+}
+
+.current-city-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-light);
+}
+
+.current-city-method {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.city-filter-chips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
 }
 
 .cities-picker-list {

@@ -23,6 +23,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -30,8 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.minshawi.quran1967.R
 import com.minshawi.quran1967.audio.AudioPlaybackManager
@@ -194,98 +197,98 @@ fun PlayerBottomSheet(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Player Controls: Prev, SeekBack, Play/Pause, SeekForward, Next
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Previous Surah
-            IconButton(onClick = onPrevClicked) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_skip_previous),
-                    contentDescription = "السورة السابقة",
-                    tint = TextLight,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-
-            // Seek Backward 10s
-            IconButton(onClick = { AudioPlaybackManager.seekBackward(10000L) }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_fast_rewind),
-                    contentDescription = "ترجيع 10 ثواني",
-                    tint = GoldLight,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-
-            // Central Play / Pause Button
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(AmberGlow, GoldAccent)
-                        )
-                    )
-                    .clickable { onPlayPauseClicked() }
+        // Player Controls: Prev, SeekBack, Play/Pause, SeekForward, Next (Fixed standard LTR ordering)
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(32.dp),
-                        color = EmeraldDark,
-                        strokeWidth = 3.dp
-                    )
-                } else {
+                // Previous Surah
+                IconButton(onClick = onPrevClicked) {
                     Icon(
-                        painter = painterResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow),
-                        contentDescription = if (isPlaying) "إيقاف مؤقت" else "تشغيل",
-                        tint = EmeraldDark,
-                        modifier = Modifier.size(36.dp)
+                        painter = painterResource(R.drawable.ic_skip_previous),
+                        contentDescription = "السورة السابقة",
+                        tint = TextLight,
+                        modifier = Modifier.size(28.dp)
                     )
                 }
-            }
 
-            // Seek Forward 10s
-            IconButton(onClick = { AudioPlaybackManager.seekForward(10000L) }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_fast_forward),
-                    contentDescription = "تقديم 10 ثواني",
-                    tint = GoldLight,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
+                // Seek Backward 10s
+                IconButton(onClick = { AudioPlaybackManager.seekBackward(10000L) }) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_fast_rewind),
+                        contentDescription = "ترجيع 10 ثواني",
+                        tint = GoldLight,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
 
-            // Next Surah
-            IconButton(onClick = onNextClicked) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_skip_next),
-                    contentDescription = "السورة التالية",
-                    tint = TextLight,
-                    modifier = Modifier.size(28.dp)
-                )
+                // Central Play / Pause Button
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(AmberGlow, GoldAccent)
+                            )
+                        )
+                        .clickable { onPlayPauseClicked() }
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp),
+                            color = EmeraldDark,
+                            strokeWidth = 3.dp
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow),
+                            contentDescription = if (isPlaying) "إيقاف مؤقت" else "تشغيل",
+                            tint = EmeraldDark,
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }
+                }
+
+                // Seek Forward 10s
+                IconButton(onClick = { AudioPlaybackManager.seekForward(10000L) }) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_fast_forward),
+                        contentDescription = "تقديم 10 ثواني",
+                        tint = GoldLight,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
+
+                // Next Surah
+                IconButton(onClick = onNextClicked) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_skip_next),
+                        contentDescription = "السورة التالية",
+                        tint = TextLight,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Bottom Extras: Repeat Mode & Download Recitation (Symmetrical & Elegant)
-        Row(
+        // Bottom Extras: Repeat Mode (Centered & Clean - No Download Button)
+        Box(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
+            contentAlignment = Alignment.Center
         ) {
-            // Repeat Toggle Button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .background(EmeraldSurface)
                     .clickable { onRepeatClicked() }
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                    .padding(horizontal = 20.dp, vertical = 9.dp)
             ) {
                 Icon(
                     painter = painterResource(if (repeatMode == RepeatMode.ONE) R.drawable.ic_repeat_one else R.drawable.ic_repeat),
@@ -293,7 +296,7 @@ fun PlayerBottomSheet(
                     tint = if (repeatMode != RepeatMode.OFF) GoldAccent else TextSecondary,
                     modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = when (repeatMode) {
                         RepeatMode.OFF -> "تكرار: معطل"
@@ -301,31 +304,8 @@ fun PlayerBottomSheet(
                         RepeatMode.ONE -> "تكرار: السورة"
                     },
                     style = MaterialTheme.typography.labelMedium.copy(
-                        color = if (repeatMode != RepeatMode.OFF) GoldLight else TextSecondary
-                    )
-                )
-            }
-
-            // Download Surah Button
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(EmeraldSurface)
-                    .clickable { onDownloadClicked() }
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_download),
-                    contentDescription = "تنزيل السورة",
-                    tint = GoldAccent,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "تنزيل السورة",
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        color = GoldLight
+                        color = if (repeatMode != RepeatMode.OFF) GoldLight else TextSecondary,
+                        fontWeight = FontWeight.Medium
                     )
                 )
             }
