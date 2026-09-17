@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;500;600;700;800&family=Reem+Kufi:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1967.2">
 </head>
 <body>
 
@@ -66,19 +66,19 @@
                                     <path d="M6 9l6 6 6-6"/>
                                 </svg>
                             </div>
-                            <div class="active-prayer-badge" id="currentPrayerLabel">
-                                الصلاة الحالية: الظهر
+                            <div class="hijri-date-badge" id="hijriDateLabel">
+                                التقويم الهجري
                             </div>
                         </div>
 
-                        <div class="prayer-highlight-row">
+                        <div class="prayer-highlight-row highlighted-next-prayer">
                             <div class="next-prayer-col">
                                 <span class="sub-label">الصلاة القادمة</span>
                                 <h2 class="next-prayer-title" id="nextPrayerName">العصر</h2>
                             </div>
                             <div class="countdown-col">
-                                <span class="sub-label">متبقي للأذان</span>
-                                <div class="countdown-timer" id="prayerCountdown">02:14:35</div>
+                                <span class="sub-label">الوقت المتبقي للأذان</span>
+                                <div class="countdown-timer" id="prayerCountdown">00:00:00</div>
                             </div>
                         </div>
 
@@ -86,27 +86,13 @@
                         <div class="prayers-timetable" id="prayersTimetable">
                             <!-- Populated dynamically: Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha -->
                         </div>
-
-                        <!-- Simulation Action Button -->
-                        <div class="simulation-banner">
-                            <button class="btn-simulate-azan" id="btnSimulateAzan">
-                                <svg class="bell-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                                </svg>
-                                <span class="simulate-text">محاكاة رفع الأذان الآن (اختبار إيقاف واستئناف التلاوة)</span>
-                            </button>
-                        </div>
                     </section>
 
                     <!-- Quran Player Card (Dignified & Balanced - No spinning element) -->
                     <section class="quran-player-card" id="quranPlayerCard">
                         <div class="player-top-info">
                             <div class="edition-tag">
-                                <svg class="sparkle-svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                                    <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
-                                </svg>
-                                <span>ختمة 1967 النقية النادرة (تسجيل إذاعي استثنائي)</span>
+                                <span>ختمة 1967 النقية النادرة</span>
                             </div>
                         </div>
 
@@ -191,15 +177,6 @@
                                     <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
                                 </svg>
                             </button>
-
-                            <!-- Download Surah Button (Symmetrical circular button) -->
-                            <button class="player-btn-circle" id="btnPlayerDownload" title="تنزيل التلاوة" aria-label="تنزيل سورة الفاتحة">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="7 10 12 15 17 10"/>
-                                    <line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                            </button>
                         </div>
                     </section>
 
@@ -253,7 +230,7 @@
                         </div>
                         <h2 class="azan-takbeer">الله أكبر .. الله أكبر</h2>
                         <h3 class="azan-prayer-title" id="azanPrayerTitle">حان الآن موعد أذان الظهر</h3>
-                        <p class="azan-reciter-name">بصوت الشيخ محمد صديق المنشاوي</p>
+                        <p class="azan-reciter-name" id="azanReciterName">بصوت الشيخ محمد صديق المنشاوي رحمه الله</p>
                         
                         <div class="azan-status-box">
                             <div class="azan-loading-bar">
@@ -292,12 +269,22 @@
                             </div>
 
                             <div class="setting-item-row">
-                                <label>صوت الأذان المعتمد:</label>
+                                <label>اختر الأذان الذي تريد:</label>
                                 <select id="azanVoiceSelect" class="styled-select">
-                                    <option value="minshawi">أذان الشيخ محمد صديق المنشاوي (تسجيل نقي)</option>
+                                    <option value="minshawi" selected>أذان الشيخ محمد صديق المنشاوي رحمه الله (الافتراضي - تسجيل نقي)</option>
                                     <option value="makkah">أذان الحرم المكي الشريف</option>
-                                    <option value="madinah">أذان الحرم النبوي الشريف</option>
+                                    <option value="madinah">أذان الحرم النبوي الشريف (المدينة المنورة)</option>
                                 </select>
+                            </div>
+
+                            <div class="setting-item-row simulation-setting-row">
+                                <button class="btn-simulate-azan-settings" id="btnSimulateAzan">
+                                    <svg class="bell-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                    </svg>
+                                    <span>تجربة محاكاة الأذان المختار الآن (إيقاف واستئناف التلاوة)</span>
+                                </button>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -315,7 +302,7 @@
     <audio id="azanAudio" preload="auto"></audio>
 
     <!-- Scripts -->
-    <script src="surahs-data.js"></script>
-    <script src="app.js"></script>
+    <script src="surahs-data.js?v=1967.2"></script>
+    <script src="app.js?v=1967.2"></script>
 </body>
 </html>

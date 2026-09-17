@@ -51,7 +51,7 @@ const azanAudio  = document.getElementById('azanAudio');
 
 const statusClock          = document.getElementById('statusClock');
 const currentLocationLabel = document.getElementById('currentLocationLabel');
-const currentPrayerLabel   = document.getElementById('currentPrayerLabel');
+const hijriDateLabel       = document.getElementById('hijriDateLabel');
 const nextPrayerName       = document.getElementById('nextPrayerName');
 const prayerCountdown      = document.getElementById('prayerCountdown');
 const prayersTimetable     = document.getElementById('prayersTimetable');
@@ -63,18 +63,17 @@ const btnOpenSettings      = document.getElementById('btnOpenSettings');
 const playerSurahNum     = document.getElementById('playerSurahNum');
 const playerSurahName    = document.getElementById('playerSurahName');
 const playerSurahDetails = document.getElementById('playerSurahDetails');
-const btnPlayerDownload  = document.getElementById('btnPlayerDownload');
-const audioVisualizer    = document.getElementById('audioVisualizer');
-const seekSlider         = document.getElementById('seekSlider');
-const timeCurrent        = document.getElementById('timeCurrent');
-const timeDuration       = document.getElementById('timeDuration');
-const btnPlayPause       = document.getElementById('btnPlayPause');
-const playIcon           = document.getElementById('playIcon');
-const btnPrev            = document.getElementById('btnPrev');
-const btnNext            = document.getElementById('btnNext');
-const btnRewind10        = document.getElementById('btnRewind10');
-const btnForward10       = document.getElementById('btnForward10');
-const btnRepeat          = document.getElementById('btnRepeat');
+const audioVisualizer      = document.getElementById('audioVisualizer');
+const seekSlider           = document.getElementById('seekSlider');
+const timeCurrent          = document.getElementById('timeCurrent');
+const timeDuration         = document.getElementById('timeDuration');
+const btnPlayPause         = document.getElementById('btnPlayPause');
+const playIcon             = document.getElementById('playIcon');
+const btnPrev              = document.getElementById('btnPrev');
+const btnNext              = document.getElementById('btnNext');
+const btnRewind10          = document.getElementById('btnRewind10');
+const btnForward10         = document.getElementById('btnForward10');
+const btnRepeat            = document.getElementById('btnRepeat');
 
 // Surahs List & Filters
 const surahsList       = document.getElementById('surahsList');
@@ -86,6 +85,7 @@ const filterChips      = document.querySelectorAll('.filter-chips .chip');
 // Azan Overlay
 const azanOverlay       = document.getElementById('azanOverlay');
 const azanPrayerTitle   = document.getElementById('azanPrayerTitle');
+const azanReciterName   = document.getElementById('azanReciterName');
 const azanProgressFill  = document.getElementById('azanProgressFill');
 const btnStopAzanResume = document.getElementById('btnStopAzanResume');
 
@@ -141,28 +141,41 @@ function svgRepeat(withOne) {
 // 5. UTILITY HELPERS & TIME FORMATTING
 // =========================================================================
 
-/** Formats seconds as MM:SS safely */
+/** Formats seconds as MM:SS (or HH:MM:SS if >= 3600) safely */
 function formatAudioTime(secs) {
     if (!isFinite(secs) || secs < 0) return '00:00';
-    var m = Math.floor(secs / 60);
-    var s = Math.floor(secs % 60);
+    var totalSecs = Math.floor(secs);
+    var h = Math.floor(totalSecs / 3600);
+    var m = Math.floor((totalSecs % 3600) / 60);
+    var s = totalSecs % 60;
+    if (h > 0) {
+        return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
     return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+/**
+ * Returns the best available duration for current Surah:
+ * Uses HTML5 audio.duration if valid and finite, otherwise falls back to
+ * the exact pre-computed duration from SURAHS_DATA (e.g. 50s for Al-Fatihah, 10187s for Al-Baqarah)
+ */
+function getEffectiveDuration(dur) {
+    if (isFinite(dur) && dur > 0) return dur;
+    var surah = SURAHS_DATA[currentSurahIndex];
+    if (surah && isFinite(surah.duration) && surah.duration > 0) return surah.duration;
+    return 0;
 }
 
 /**
  * Updates the time indicators in full harmony:
  * - timeCurrent counts UP: 00:00, 00:01, 00:02...
- * - timeDuration counts DOWN (Remaining time): -04:35, -04:34, -04:33...
+ * - timeDuration counts DOWN from the Surah's original total duration:
+ *   e.g. for Al-Fatihah (50s): 00:50, 00:49, 00:48... down to 00:00 (without minus sign)
  */
 function updateTimeDisplay(cur, dur) {
-    if (!isFinite(dur) || dur <= 0) {
-        timeCurrent.textContent = formatAudioTime(cur);
-        timeDuration.textContent = '00:00';
-        return;
-    }
-
+    var effectiveDur = getEffectiveDuration(dur);
     timeCurrent.textContent = formatAudioTime(cur);
-    var remaining = Math.max(0, dur - cur);
+    var remaining = Math.max(0, effectiveDur - cur);
     timeDuration.textContent = formatAudioTime(remaining);
 }
 
@@ -184,7 +197,9 @@ function triggerDownloadSurah(surahIndex, btnEl) {
     var url = surah.url1967 || surah.urlFallback;
     var filename = 'المنشاوي_1967_سورة_' + surah.arabicName + '_' + String(surah.number).padStart(3, '0') + '.mp3';
 
-    if (btnEl) btnEl.classList.add('downloading');
+    if (btnEl) {
+        btnEl.classList.add('downloading');
+    }
 
     var a = document.createElement('a');
     a.href = url;
@@ -195,14 +210,10 @@ function triggerDownloadSurah(surahIndex, btnEl) {
     document.body.removeChild(a);
 
     setTimeout(function () {
-        if (btnEl) btnEl.classList.remove('downloading');
-    }, 1500);
-}
-
-if (btnPlayerDownload) {
-    btnPlayerDownload.addEventListener('click', function () {
-        triggerDownloadSurah(currentSurahIndex, btnPlayerDownload);
-    });
+        if (btnEl) {
+            btnEl.classList.remove('downloading');
+        }
+    }, 2500);
 }
 
 // =========================================================================
@@ -269,6 +280,22 @@ function formatArabicTime(date) {
     return hours + ':' + minutes + ' ' + (isPm ? 'م' : 'ص');
 }
 
+function getFormattedHijriDate() {
+    try {
+        var d = new Date();
+        var formatter = new Intl.DateTimeFormat('ar-TN-u-ca-islamic-umalqura', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        var str = formatter.format(d);
+        if (!str.includes('هـ')) str += ' هـ';
+        return str;
+    } catch (e) {
+        return 'التقويم الهجري';
+    }
+}
+
 function updatePrayerTimes() {
     var now = new Date();
     todayPrayers = calculatePrayersForDate(now, currentCity);
@@ -299,13 +326,16 @@ function updatePrayerTimes() {
     }
 
     currentLocationLabel.textContent = currentCity.country + ' - ' + currentCity.city;
-    currentPrayerLabel.textContent   = 'الصلاة الحالية: ' + currentPrayer.name;
+    if (hijriDateLabel) {
+        hijriDateLabel.textContent = getFormattedHijriDate();
+    }
     nextPrayerName.textContent       = nextAzanPrayer.name;
 
     var diffMs    = Math.max(0, nextAzanPrayer.date - now);
     var totalSecs = Math.floor(diffMs / 1000);
     var hh = String(Math.floor(totalSecs / 3600)).padStart(2, '0');
     var mm = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, '0');
+    var ss = String(Math.floor(totalSecs % 60)).padStart(2, '0');
     prayerCountdown.textContent = hh + ':' + mm + ':' + ss;
 
     var prayerStateKey = currentCity.city + '_' + nextAzanPrayer.name;
@@ -341,6 +371,16 @@ function triggerAzan(prayerName) {
     }
 
     azanPrayerTitle.textContent  = 'حان الآن موعد أذان ' + prayerName;
+    
+    var azanVoiceLabels = {
+        minshawi: 'بصوت الشيخ محمد صديق المنشاوي رحمه الله',
+        makkah:   'بصوت مؤذن الحرم المكي الشريف',
+        madinah:  'بصوت مؤذن المسجد النبوي الشريف'
+    };
+    if (azanReciterName) {
+        azanReciterName.textContent = azanVoiceLabels[selectedAzanVoice] || azanVoiceLabels.minshawi;
+    }
+
     azanOverlay.classList.add('show');
     azanProgressFill.style.width = '0%';
 
@@ -375,12 +415,56 @@ azanAudio.addEventListener('timeupdate', function () {
 azanAudio.addEventListener('ended', stopAzanAndResumeRecitation);
 btnStopAzanResume.addEventListener('click', stopAzanAndResumeRecitation);
 btnSimulateAzan.addEventListener('click', function () {
+    if (settingsModal) settingsModal.classList.remove('show');
     triggerAzan(nextPrayerName.textContent || 'الظهر');
 });
 
 // =========================================================================
 // 8. QURAN PLAYER CONTROLLER (1967 PURE EDITION)
 // =========================================================================
+
+function updateMediaSession(surah) {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: 'سورة ' + surah.arabicName,
+            artist: 'الشيخ محمد صديق المنشاوي',
+            album: 'ختمة 1967 النقية النادرة',
+            artwork: [
+                { src: 'https://archive.org/download/a00ssssss260908ddd/cover.jpg', sizes: '512x512', type: 'image/jpeg' }
+            ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', function () {
+            togglePlay();
+        });
+        navigator.mediaSession.setActionHandler('pause', function () {
+            togglePlay();
+        });
+        navigator.mediaSession.setActionHandler('previoustrack', function () {
+            loadSurah((currentSurahIndex - 1 + SURAHS_DATA.length) % SURAHS_DATA.length, true);
+        });
+        navigator.mediaSession.setActionHandler('nexttrack', function () {
+            loadSurah((currentSurahIndex + 1) % SURAHS_DATA.length, true);
+        });
+        navigator.mediaSession.setActionHandler('seekbackward', function () {
+            quranAudio.currentTime = Math.max(0, quranAudio.currentTime - 10);
+            updateTimeDisplay(quranAudio.currentTime, quranAudio.duration);
+        });
+        navigator.mediaSession.setActionHandler('seekforward', function () {
+            var dur = getEffectiveDuration(quranAudio.duration);
+            quranAudio.currentTime = Math.min(dur > 0 ? dur : 999999, quranAudio.currentTime + 10);
+            updateTimeDisplay(quranAudio.currentTime, dur);
+        });
+        try {
+            navigator.mediaSession.setActionHandler('seekto', function (details) {
+                if (details.seekTime !== undefined) {
+                    quranAudio.currentTime = details.seekTime;
+                    updateTimeDisplay(quranAudio.currentTime, quranAudio.duration);
+                }
+            });
+        } catch (e) {}
+    }
+}
 
 function loadSurah(index, autoPlay) {
     autoPlay = autoPlay || false;
@@ -395,10 +479,7 @@ function loadSurah(index, autoPlay) {
 
     seekSlider.setAttribute('aria-label', 'موضع التلاوة - سورة ' + surah.arabicName);
 
-    if (btnPlayerDownload) {
-        btnPlayerDownload.title = 'تنزيل سورة ' + surah.arabicName;
-        btnPlayerDownload.setAttribute('aria-label', 'تنزيل سورة ' + surah.arabicName);
-    }
+    updateMediaSession(surah);
 
     document.querySelectorAll('.surah-item').forEach(function (el, idx) {
         el.classList.toggle('current-active', idx === index);
@@ -408,8 +489,8 @@ function loadSurah(index, autoPlay) {
     quranAudio.playbackRate = 1.0;
     seekSlider.value        = 0;
     seekSlider.setAttribute('aria-valuenow', 0);
-    timeCurrent.textContent = '00:00';
-    timeDuration.textContent = '00:00';
+    // Immediately set start time: 00:00 on left, full original duration on right (counting down)
+    updateTimeDisplay(0, surah.duration);
 
     if (autoPlay) {
         quranAudio.play().then(function () {
@@ -433,7 +514,21 @@ function updatePlayState(playing) {
     if (audioVisualizer) {
         audioVisualizer.classList.toggle('active', playing);
     }
-    renderSurahs();
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+    }
+
+    // Fast targeted in-place DOM update without re-rendering 114 HTML items
+    var items = surahsList.querySelectorAll('.surah-item');
+    items.forEach(function (el) {
+        var idx = parseInt(el.dataset.index);
+        var isCurrent = (idx === currentSurahIndex);
+        el.classList.toggle('current-active', isCurrent);
+        var playBtn = el.querySelector('.btn-item-play');
+        if (playBtn) {
+            playBtn.innerHTML = (isCurrent && playing) ? svgPause(15) : svgPlay(15);
+        }
+    });
 }
 
 function togglePlay() {
@@ -452,26 +547,20 @@ function togglePlay() {
 // Immediately update duration when metadata is ready
 quranAudio.addEventListener('loadedmetadata', function () {
     var cur = quranAudio.currentTime || 0;
-    var dur = quranAudio.duration;
-    if (isFinite(dur) && dur > 0) {
-        updateTimeDisplay(cur, dur);
-    }
+    updateTimeDisplay(cur, quranAudio.duration);
 });
 
 quranAudio.addEventListener('durationchange', function () {
     var cur = quranAudio.currentTime || 0;
-    var dur = quranAudio.duration;
-    if (isFinite(dur) && dur > 0) {
-        updateTimeDisplay(cur, dur);
-    }
+    updateTimeDisplay(cur, quranAudio.duration);
 });
 
-// Quran audio timeupdate — counts up on left, counts down on right in harmony
+// Quran audio timeupdate — counts up on left, counts down from original duration on right
 quranAudio.addEventListener('timeupdate', function () {
-    var dur = quranAudio.duration;
-    if (!isFinite(dur) || dur === 0) return;
-    var cur = quranAudio.currentTime;
-    var pct = (cur / dur) * 100;
+    var dur = getEffectiveDuration(quranAudio.duration);
+    if (!dur || dur <= 0) return;
+    var cur = quranAudio.currentTime || 0;
+    var pct = Math.min(100, (cur / dur) * 100);
     seekSlider.value = pct;
     seekSlider.setAttribute('aria-valuenow', Math.round(pct));
     updateTimeDisplay(cur, dur);
@@ -494,8 +583,8 @@ quranAudio.addEventListener('ended', function () {
 });
 
 seekSlider.addEventListener('input', function () {
-    var dur = quranAudio.duration;
-    if (!isFinite(dur) || dur === 0) return;
+    var dur = getEffectiveDuration(quranAudio.duration);
+    if (!dur || dur <= 0) return;
     var newTime = (seekSlider.value / 100) * dur;
     quranAudio.currentTime = newTime;
     updateTimeDisplay(newTime, dur);
@@ -517,9 +606,9 @@ btnRewind10.addEventListener('click', function () {
 });
 
 btnForward10.addEventListener('click', function () {
-    var dur = quranAudio.duration;
-    quranAudio.currentTime = Math.min(isFinite(dur) ? dur : 0, quranAudio.currentTime + 10);
-    updateTimeDisplay(quranAudio.currentTime, quranAudio.duration);
+    var dur = getEffectiveDuration(quranAudio.duration);
+    quranAudio.currentTime = Math.min(dur > 0 ? dur : 999999, quranAudio.currentTime + 10);
+    updateTimeDisplay(quranAudio.currentTime, dur);
 });
 
 btnRepeat.addEventListener('click', function () {
@@ -650,13 +739,26 @@ function renderCitiesPicker() {
     });
 }
 
-btnChangeLocation.addEventListener('click', function () { renderCitiesPicker(); settingsModal.classList.add('show'); });
-btnOpenSettings.addEventListener('click',   function () { renderCitiesPicker(); settingsModal.classList.add('show'); });
+btnChangeLocation.addEventListener('click', function () {
+    renderCitiesPicker();
+    if (azanVoiceSelect) azanVoiceSelect.value = selectedAzanVoice;
+    settingsModal.classList.add('show');
+});
+btnOpenSettings.addEventListener('click', function () {
+    renderCitiesPicker();
+    if (azanVoiceSelect) azanVoiceSelect.value = selectedAzanVoice;
+    settingsModal.classList.add('show');
+});
 btnCloseSettings.addEventListener('click',  function () { settingsModal.classList.remove('show'); });
 btnSaveSettings.addEventListener('click',   function () {
-    selectedAzanVoice = azanVoiceSelect.value;
+    if (azanVoiceSelect) selectedAzanVoice = azanVoiceSelect.value;
     settingsModal.classList.remove('show');
 });
+if (azanVoiceSelect) {
+    azanVoiceSelect.addEventListener('change', function () {
+        selectedAzanVoice = azanVoiceSelect.value;
+    });
+}
 
 // =========================================================================
 // 11. INITIALIZATION & LIVE CLOCK TICKER

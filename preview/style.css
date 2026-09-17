@@ -163,6 +163,9 @@ body {
     gap: 14px;
     scrollbar-width: thin;
     scrollbar-color: var(--gold-primary) transparent;
+    -webkit-overflow-scrolling: touch;
+    will-change: scroll-position;
+    transform: translateZ(0);
 }
 
 .app-main-content::-webkit-scrollbar {
@@ -208,43 +211,52 @@ body {
     background: rgba(212, 175, 55, 0.2);
 }
 
+.hijri-date-badge,
 .active-prayer-badge {
-    font-size: 11px;
-    color: var(--gold-primary);
-    background: rgba(212, 175, 55, 0.12);
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-weight: 600;
+    font-size: 11.5px;
+    color: var(--gold-light);
+    background: rgba(212, 175, 55, 0.16);
+    border: 1px solid var(--border-gold);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
 }
 
 .prayer-highlight-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(14, 46, 35, 0.75) 0%, rgba(6, 24, 18, 0.85) 100%);
+    border: 1px solid var(--border-gold);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
     margin-bottom: 14px;
 }
 
 .sub-label {
     font-size: 12px;
-    color: var(--text-secondary);
+    color: var(--gold-light);
     display: block;
     margin-bottom: 2px;
+    font-weight: 600;
 }
 
 .next-prayer-title {
     font-family: 'Amiri', serif;
-    font-size: 24px;
-    color: var(--gold-light);
+    font-size: 32px;
+    color: #fff;
     font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
 }
 
 .countdown-timer {
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 800;
     color: var(--amber-pulse);
     font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 12px rgba(255, 183, 3, 0.4);
-    letter-spacing: 1px;
+    text-shadow: 0 0 14px rgba(255, 183, 3, 0.45);
+    letter-spacing: 1.5px;
 }
 
 /* Prayers Timetable */
@@ -394,35 +406,46 @@ body {
 /* Calm Audio Visualizer */
 .audio-visualizer {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
     gap: 4px;
-    height: 16px;
-    margin-top: 4px;
+    height: 22px;
+    margin: 8px 0;
 }
 
 .audio-visualizer .bar {
-    width: 3px;
-    height: 3px;
+    width: 3.5px;
     background: var(--gold-primary);
-    border-radius: 2px;
-    transition: height 0.15s ease;
+    border-radius: 3px;
+    transition: height 0.25s ease;
     will-change: height;
 }
 
-.audio-visualizer.active .bar:nth-child(1) { animation: bounce 0.8s ease-in-out infinite; }
-.audio-visualizer.active .bar:nth-child(2) { animation: bounce 0.9s ease-in-out infinite 0.1s; }
-.audio-visualizer.active .bar:nth-child(3) { animation: bounce 0.7s ease-in-out infinite 0.2s; }
-.audio-visualizer.active .bar:nth-child(4) { animation: bounce 1.0s ease-in-out infinite 0.15s; }
-.audio-visualizer.active .bar:nth-child(5) { animation: bounce 0.85s ease-in-out infinite 0.3s; }
-.audio-visualizer.active .bar:nth-child(6) { animation: bounce 0.95s ease-in-out infinite 0.05s; }
+/* Resting frequency bars when paused */
+.audio-visualizer:not(.active) .bar:nth-child(1) { height: 4px; }
+.audio-visualizer:not(.active) .bar:nth-child(2) { height: 7px; }
+.audio-visualizer:not(.active) .bar:nth-child(3) { height: 12px; }
+.audio-visualizer:not(.active) .bar:nth-child(4) { height: 16px; }
+.audio-visualizer:not(.active) .bar:nth-child(5) { height: 20px; }
+.audio-visualizer:not(.active) .bar:nth-child(6) { height: 16px; }
+.audio-visualizer:not(.active) .bar:nth-child(7) { height: 12px; }
+.audio-visualizer:not(.active) .bar:nth-child(8) { height: 7px; }
+.audio-visualizer:not(.active) .bar:nth-child(9) { height: 4px; }
+
+/* Dynamic pulsing frequencies when playing */
+.audio-visualizer.active .bar:nth-child(1) { animation: bounce 0.65s ease-in-out infinite; }
+.audio-visualizer.active .bar:nth-child(2) { animation: bounce 0.85s ease-in-out infinite 0.1s; }
+.audio-visualizer.active .bar:nth-child(3) { animation: bounce 0.70s ease-in-out infinite 0.2s; }
+.audio-visualizer.active .bar:nth-child(4) { animation: bounce 0.95s ease-in-out infinite 0.15s; }
+.audio-visualizer.active .bar:nth-child(5) { animation: bounce 0.80s ease-in-out infinite 0.3s; }
+.audio-visualizer.active .bar:nth-child(6) { animation: bounce 0.90s ease-in-out infinite 0.05s; }
 .audio-visualizer.active .bar:nth-child(7) { animation: bounce 0.75s ease-in-out infinite 0.25s; }
-.audio-visualizer.active .bar:nth-child(8) { animation: bounce 0.88s ease-in-out infinite 0.18s; }
-.audio-visualizer.active .bar:nth-child(9) { animation: bounce 0.65s ease-in-out infinite 0.12s; }
+.audio-visualizer.active .bar:nth-child(8) { animation: bounce 0.82s ease-in-out infinite 0.18s; }
+.audio-visualizer.active .bar:nth-child(9) { animation: bounce 0.60s ease-in-out infinite 0.12s; }
 
 @keyframes bounce {
-    0%, 100% { height: 3px; }
-    50% { height: 16px; }
+    0%, 100% { height: 4px; }
+    50% { height: 20px; }
 }
 
 /* Seek Slider & Timestamps */
@@ -655,6 +678,7 @@ body {
     justify-content: space-between;
     cursor: pointer;
     transition: var(--transition-fast);
+    contain: content;
 }
 
 .surah-item:hover {
@@ -994,6 +1018,36 @@ body {
     outline: none;
     font-family: inherit;
     font-size: 12px;
+}
+
+/* Azan Simulation Option inside Settings Modal */
+.simulation-setting-row {
+    margin-top: 14px;
+}
+
+.btn-simulate-azan-settings {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.16) 0%, rgba(10, 34, 26, 0.9) 100%);
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-light);
+    padding: 11px 14px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-simulate-azan-settings:hover {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.28) 0%, rgba(24, 80, 61, 0.95) 100%);
+    color: #fff;
+    border-color: #fff;
+    transform: translateY(-1px);
 }
 
 .modal-footer {

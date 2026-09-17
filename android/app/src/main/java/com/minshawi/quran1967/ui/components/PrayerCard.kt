@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -51,11 +52,30 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import java.util.Locale
 
+fun getFormattedHijriDate(): String {
+    return try {
+        val hijrahDate = java.time.chrono.HijrahDate.now()
+        val day = hijrahDate.get(java.time.temporal.ChronoField.DAY_OF_MONTH)
+        val month = hijrahDate.get(java.time.temporal.ChronoField.MONTH_OF_YEAR)
+        val year = hijrahDate.get(java.time.temporal.ChronoField.YEAR)
+
+        val hijriMonths = listOf(
+            "محرم", "صفر", "ربيع الأول", "ربيع الآخر",
+            "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان",
+            "رمضان", "شوال", "ذو القعدة", "ذو الحجة"
+        )
+        val monthName = if (month in 1..12) hijriMonths[month - 1] else "هـ"
+        "$day $monthName $year هـ"
+    } catch (e: Exception) {
+        "التقويم الهجري"
+    }
+}
+
 @Composable
 fun PrayerCard(
     schedule: DayPrayerSchedule,
     onSelectLocationClicked: () -> Unit,
-    onSimulateAzanClicked: () -> Unit,
+    onSimulateAzanClicked: () -> Unit = {},
     onRefreshSchedule: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -125,56 +145,86 @@ fun PrayerCard(
                     )
                 }
 
-                // Current Prayer Badge
+                // Hijri Calendar Date Badge (التقويم الهجري)
+                val hijriDateText = remember { getFormattedHijriDate() }
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(GoldAccent.copy(alpha = 0.15f))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(GoldAccent.copy(alpha = 0.16f))
+                        .border(1.dp, GoldAccent.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
                 ) {
                     Text(
-                        text = "الصلاة الآن: ${schedule.currentPrayerName}",
-                        style = MaterialTheme.typography.labelSmall.copy(color = GoldAccent)
+                        text = hijriDateText,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            color = GoldLight,
+                            fontWeight = FontWeight.Bold
+                        )
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Main Info: Next Prayer & Countdown
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Main Info: Next Prayer & Countdown (كبير وواضح للمستخدم)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(EmeraldDark.copy(alpha = 0.75f))
+                    .border(1.dp, GoldAccent.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                Column {
-                    Text(
-                        text = "الصلاة القادمة",
-                        style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
-                    )
-                    Text(
-                        text = schedule.nextPrayerName,
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            color = TextLight,
-                            fontWeight = FontWeight.Bold
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(GoldAccent)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "الصلاة القادمة",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = GoldLight,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = schedule.nextPrayerName,
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                color = TextLight,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 32.sp
+                            )
                         )
-                    )
-                }
+                    }
 
-                // Digital Countdown Pill
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "متبقي للأذان",
-                        style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
-                    )
-                    Text(
-                        text = countdownText,
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            color = AmberGlow,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
+                    // Digital Countdown (كبير وواضح)
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "الوقت المتبقي للأذان",
+                            style = MaterialTheme.typography.bodySmall.copy(color = TextSecondary)
                         )
-                    )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = countdownText,
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                color = AmberGlow,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 28.sp,
+                                letterSpacing = 1.5.sp
+                            )
+                        )
+                    }
                 }
             }
 
@@ -226,36 +276,6 @@ fun PrayerCard(
                         )
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Azan Simulation Button (Test interruption & auto-resume immediately)
-            Button(
-                onClick = onSimulateAzanClicked,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = EmeraldDark.copy(alpha = 0.8f),
-                    contentColor = GoldAccent
-                ),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, GoldAccent.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_notifications_active),
-                    contentDescription = null,
-                    tint = AmberGlow,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "تجربة محاكاة الأذان الآن (اختبار إيقاف واستئناف التلاوة)",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = GoldLight
-                    )
-                )
             }
         }
     }

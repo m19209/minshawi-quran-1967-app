@@ -6,7 +6,8 @@ const SURAHS_DATA = [
     "ayahCount": 7,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/001%20-%20%D8%A7%D9%84%D9%81%D8%A7%D8%AA%D8%AD%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/001.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/001.mp3",
+    "duration": 50
   },
   {
     "number": 2,
@@ -15,7 +16,8 @@ const SURAHS_DATA = [
     "ayahCount": 286,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/002%20-%20%D8%A7%D9%84%D8%A8%D9%82%D8%B1%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/002.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/002.mp3",
+    "duration": 10187
   },
   {
     "number": 3,
@@ -24,7 +26,8 @@ const SURAHS_DATA = [
     "ayahCount": 200,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/003%20-%20%D8%A2%D9%84%20%D8%B9%D9%85%D8%B1%D8%A7%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/003.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/003.mp3",
+    "duration": 5380
   },
   {
     "number": 4,
@@ -33,7 +36,8 @@ const SURAHS_DATA = [
     "ayahCount": 176,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/004%20-%20%D8%A7%D9%84%D9%86%D8%B3%D8%A7%D8%A1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/004.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/004.mp3",
+    "duration": 5110
   },
   {
     "number": 5,
@@ -42,7 +46,8 @@ const SURAHS_DATA = [
     "ayahCount": 120,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/005%20-%20%D8%A7%D9%84%D9%85%D8%A7%D8%A6%D8%AF%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/005.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/005.mp3",
+    "duration": 4187
   },
   {
     "number": 6,
@@ -51,7 +56,8 @@ const SURAHS_DATA = [
     "ayahCount": 165,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/006%20-%20%D8%A7%D9%84%D8%A3%D9%86%D8%B9%D8%A7%D9%85.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/006.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/006.mp3",
+    "duration": 4266
   },
   {
     "number": 7,
@@ -60,7 +66,8 @@ const SURAHS_DATA = [
     "ayahCount": 206,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/007%20-%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/007.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/007.mp3",
+    "duration": 4774
   },
   {
     "number": 8,
@@ -69,7 +76,8 @@ const SURAHS_DATA = [
     "ayahCount": 75,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/008%20-%20%D8%A7%D9%84%D8%A3%D9%86%D9%81%D8%A7%D9%84.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/008.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/008.mp3",
+    "duration": 1881
   },
   {
     "number": 9,
@@ -78,7 +86,8 @@ const SURAHS_DATA = [
     "ayahCount": 129,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/009%20-%20%D8%A7%D9%84%D8%AA%D9%88%D8%A8%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/009.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/009.mp3",
+    "duration": 3451
   },
   {
     "number": 10,
@@ -87,7 +96,8 @@ const SURAHS_DATA = [
     "ayahCount": 109,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/010%20-%20%D9%8A%D9%88%D9%86%D8%B3.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/010.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/010.mp3",
+    "duration": 2575
   },
   {
     "number": 11,
@@ -96,7 +106,8 @@ const SURAHS_DATA = [
     "ayahCount": 123,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/011%20-%20%D9%87%D9%88%D8%AF.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/011.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/011.mp3",
+    "duration": 2836
   },
   {
     "number": 12,
@@ -105,7 +116,8 @@ const SURAHS_DATA = [
     "ayahCount": 111,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/012%20-%20%D9%8A%D9%88%D8%B3%D9%81.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/012.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/012.mp3",
+    "duration": 2663
   },
   {
     "number": 13,
@@ -114,7 +126,8 @@ const SURAHS_DATA = [
     "ayahCount": 43,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/013%20-%20%D8%A7%D9%84%D8%B1%D8%B9%D8%AF.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/013.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/013.mp3",
+    "duration": 1134
   },
   {
     "number": 14,
@@ -123,7 +136,8 @@ const SURAHS_DATA = [
     "ayahCount": 52,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/014%20-%20%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/014.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/014.mp3",
+    "duration": 1100
   },
   {
     "number": 15,
@@ -132,7 +146,8 @@ const SURAHS_DATA = [
     "ayahCount": 99,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/015%20-%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/015.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/015.mp3",
+    "duration": 847
   },
   {
     "number": 16,
@@ -141,7 +156,8 @@ const SURAHS_DATA = [
     "ayahCount": 128,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/016%20-%20%D8%A7%D9%84%D9%86%D8%AD%D9%84.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/016.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/016.mp3",
+    "duration": 2197
   },
   {
     "number": 17,
@@ -150,7 +166,8 @@ const SURAHS_DATA = [
     "ayahCount": 111,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/017%20-%20%D8%A7%D9%84%D8%A5%D8%B3%D8%B1%D8%A7%D8%A1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/017.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/017.mp3",
+    "duration": 1898
   },
   {
     "number": 18,
@@ -159,7 +176,8 @@ const SURAHS_DATA = [
     "ayahCount": 110,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/018%20-%20%D8%A7%D9%84%D9%83%D9%87%D9%81.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/018.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/018.mp3",
+    "duration": 2108
   },
   {
     "number": 19,
@@ -168,7 +186,8 @@ const SURAHS_DATA = [
     "ayahCount": 98,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/019%20-%20%D9%85%D8%B1%D9%8A%D9%85.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/019.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/019.mp3",
+    "duration": 1117
   },
   {
     "number": 20,
@@ -177,7 +196,8 @@ const SURAHS_DATA = [
     "ayahCount": 135,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/020%20-%20%D8%B7%D9%87.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/020.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/020.mp3",
+    "duration": 1590
   },
   {
     "number": 21,
@@ -186,7 +206,8 @@ const SURAHS_DATA = [
     "ayahCount": 112,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/021%20-%20%D8%A7%D9%84%D8%A3%D9%86%D8%A8%D9%8A%D8%A7%D8%A1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/021.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/021.mp3",
+    "duration": 1692
   },
   {
     "number": 22,
@@ -195,7 +216,8 @@ const SURAHS_DATA = [
     "ayahCount": 78,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/022%20-%20%D8%A7%D9%84%D8%AD%D8%AC.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/022.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/022.mp3",
+    "duration": 1632
   },
   {
     "number": 23,
@@ -204,7 +226,8 @@ const SURAHS_DATA = [
     "ayahCount": 118,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/023%20-%20%D8%A7%D9%84%D9%85%D8%A4%D9%85%D9%86%D9%88%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/023.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/023.mp3",
+    "duration": 1387
   },
   {
     "number": 24,
@@ -213,7 +236,8 @@ const SURAHS_DATA = [
     "ayahCount": 64,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/024%20-%20%D8%A7%D9%84%D9%86%D9%88%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/024.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/024.mp3",
+    "duration": 1349
   },
   {
     "number": 25,
@@ -222,7 +246,8 @@ const SURAHS_DATA = [
     "ayahCount": 77,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/025%20-%20%D8%A7%D9%84%D9%81%D8%B1%D9%82%D8%A7%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/025.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/025.mp3",
+    "duration": 1063
   },
   {
     "number": 26,
@@ -231,7 +256,8 @@ const SURAHS_DATA = [
     "ayahCount": 227,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/026%20-%20%D8%A7%D9%84%D8%B4%D8%B9%D8%B1%D8%A7%D8%A1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/026.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/026.mp3",
+    "duration": 1602
   },
   {
     "number": 27,
@@ -240,7 +266,8 @@ const SURAHS_DATA = [
     "ayahCount": 93,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/027%20-%20%D8%A7%D9%84%D9%86%D9%85%D9%84.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/027.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/027.mp3",
+    "duration": 1451
   },
   {
     "number": 28,
@@ -249,7 +276,8 @@ const SURAHS_DATA = [
     "ayahCount": 88,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/028%20-%20%D8%A7%D9%84%D9%82%D8%B5%D8%B5.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/028.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/028.mp3",
+    "duration": 1760
   },
   {
     "number": 29,
@@ -258,7 +286,8 @@ const SURAHS_DATA = [
     "ayahCount": 69,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/029%20-%20%D8%A7%D9%84%D8%B9%D9%86%D9%83%D8%A8%D9%88%D8%AA.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/029.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/029.mp3",
+    "duration": 1227
   },
   {
     "number": 30,
@@ -267,7 +296,8 @@ const SURAHS_DATA = [
     "ayahCount": 60,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/030%20-%20%D8%A7%D9%84%D8%B1%D9%88%D9%85.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/030.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/030.mp3",
+    "duration": 1022
   },
   {
     "number": 31,
@@ -276,7 +306,8 @@ const SURAHS_DATA = [
     "ayahCount": 34,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/031%20-%20%D9%84%D9%82%D9%85%D8%A7%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/031.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/031.mp3",
+    "duration": 633
   },
   {
     "number": 32,
@@ -285,7 +316,8 @@ const SURAHS_DATA = [
     "ayahCount": 30,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/032%20-%20%D8%A7%D9%84%D8%B3%D8%AC%D8%AF%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/032.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/032.mp3",
+    "duration": 445
   },
   {
     "number": 33,
@@ -294,7 +326,8 @@ const SURAHS_DATA = [
     "ayahCount": 73,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/033%20-%20%D8%A7%D9%84%D8%A3%D8%AD%D8%B2%D8%A7%D8%A8.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/033.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/033.mp3",
+    "duration": 1639
   },
   {
     "number": 34,
@@ -303,7 +336,8 @@ const SURAHS_DATA = [
     "ayahCount": 54,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/034%20-%20%D8%B3%D8%A8%D8%A3.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/034.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/034.mp3",
+    "duration": 1065
   },
   {
     "number": 35,
@@ -312,7 +346,8 @@ const SURAHS_DATA = [
     "ayahCount": 45,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/035%20-%20%D9%81%D8%A7%D8%B7%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/035.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/035.mp3",
+    "duration": 989
   },
   {
     "number": 36,
@@ -321,7 +356,8 @@ const SURAHS_DATA = [
     "ayahCount": 83,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/036%20-%20%D9%8A%D8%B3.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/036.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/036.mp3",
+    "duration": 941
   },
   {
     "number": 37,
@@ -330,7 +366,8 @@ const SURAHS_DATA = [
     "ayahCount": 182,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/037%20-%20%D8%A7%D9%84%D8%B5%D8%A7%D9%81%D8%A7%D8%AA.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/037.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/037.mp3",
+    "duration": 1230
   },
   {
     "number": 38,
@@ -339,7 +376,8 @@ const SURAHS_DATA = [
     "ayahCount": 88,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/038%20-%20%D8%B5.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/038.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/038.mp3",
+    "duration": 975
   },
   {
     "number": 39,
@@ -348,7 +386,8 @@ const SURAHS_DATA = [
     "ayahCount": 75,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/039%20-%20%D8%A7%D9%84%D8%B2%D9%85%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/039.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/039.mp3",
+    "duration": 1398
   },
   {
     "number": 40,
@@ -357,7 +396,8 @@ const SURAHS_DATA = [
     "ayahCount": 85,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/040%20-%20%D8%BA%D8%A7%D9%81%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/040.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/040.mp3",
+    "duration": 1439
   },
   {
     "number": 41,
@@ -366,7 +406,8 @@ const SURAHS_DATA = [
     "ayahCount": 54,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/041%20-%20%D9%81%D8%B5%D9%84%D8%AA.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/041.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/041.mp3",
+    "duration": 1064
   },
   {
     "number": 42,
@@ -375,7 +416,8 @@ const SURAHS_DATA = [
     "ayahCount": 53,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/042%20-%20%D8%A7%D9%84%D8%B4%D9%88%D8%B1%D9%89.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/042.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/042.mp3",
+    "duration": 998
   },
   {
     "number": 43,
@@ -384,7 +426,8 @@ const SURAHS_DATA = [
     "ayahCount": 89,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/043%20-%20%D8%A7%D9%84%D8%B2%D8%AE%D8%B1%D9%81.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/043.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/043.mp3",
+    "duration": 1008
   },
   {
     "number": 44,
@@ -393,7 +436,8 @@ const SURAHS_DATA = [
     "ayahCount": 59,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/044%20-%20%D8%A7%D9%84%D8%AF%D8%AE%D8%A7%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/044.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/044.mp3",
+    "duration": 424
   },
   {
     "number": 45,
@@ -402,7 +446,8 @@ const SURAHS_DATA = [
     "ayahCount": 37,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/045%20-%20%D8%A7%D9%84%D8%AC%D8%A7%D8%AB%D9%8A%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/045.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/045.mp3",
+    "duration": 568
   },
   {
     "number": 46,
@@ -411,7 +456,8 @@ const SURAHS_DATA = [
     "ayahCount": 35,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/046%20-%20%D8%A7%D9%84%D8%A3%D8%AD%D9%82%D8%A7%D9%81.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/046.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/046.mp3",
+    "duration": 715
   },
   {
     "number": 47,
@@ -420,7 +466,8 @@ const SURAHS_DATA = [
     "ayahCount": 38,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/047%20-%20%D9%85%D8%AD%D9%85%D8%AF.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/047.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/047.mp3",
+    "duration": 626
   },
   {
     "number": 48,
@@ -429,7 +476,8 @@ const SURAHS_DATA = [
     "ayahCount": 29,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/048%20-%20%D8%A7%D9%84%D9%81%D8%AA%D8%AD.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/048.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/048.mp3",
+    "duration": 645
   },
   {
     "number": 49,
@@ -438,7 +486,8 @@ const SURAHS_DATA = [
     "ayahCount": 18,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/049%20-%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1%D8%A7%D8%AA.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/049.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/049.mp3",
+    "duration": 430
   },
   {
     "number": 50,
@@ -447,7 +496,8 @@ const SURAHS_DATA = [
     "ayahCount": 45,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/050%20-%20%D9%82.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/050.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/050.mp3",
+    "duration": 419
   },
   {
     "number": 51,
@@ -456,7 +506,8 @@ const SURAHS_DATA = [
     "ayahCount": 60,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/051%20-%20%D8%A7%D9%84%D8%B0%D8%A7%D8%B1%D9%8A%D8%A7%D8%AA.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/051.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/051.mp3",
+    "duration": 419
   },
   {
     "number": 52,
@@ -465,7 +516,8 @@ const SURAHS_DATA = [
     "ayahCount": 49,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/052%20-%20%D8%A7%D9%84%D8%B7%D9%88%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/052.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/052.mp3",
+    "duration": 368
   },
   {
     "number": 53,
@@ -474,7 +526,8 @@ const SURAHS_DATA = [
     "ayahCount": 62,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/053%20-%20%D8%A7%D9%84%D9%86%D8%AC%D9%85.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/053.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/053.mp3",
+    "duration": 462
   },
   {
     "number": 54,
@@ -483,7 +536,8 @@ const SURAHS_DATA = [
     "ayahCount": 55,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/054%20-%20%D8%A7%D9%84%D9%82%D9%85%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/054.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/054.mp3",
+    "duration": 536
   },
   {
     "number": 55,
@@ -492,7 +546,8 @@ const SURAHS_DATA = [
     "ayahCount": 78,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/055%20-%20%D8%A7%D9%84%D8%B1%D8%AD%D9%85%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/055.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/055.mp3",
+    "duration": 616
   },
   {
     "number": 56,
@@ -501,7 +556,8 @@ const SURAHS_DATA = [
     "ayahCount": 96,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/056%20-%20%D8%A7%D9%84%D9%88%D8%A7%D9%82%D8%B9%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/056.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/056.mp3",
+    "duration": 589
   },
   {
     "number": 57,
@@ -510,7 +566,8 @@ const SURAHS_DATA = [
     "ayahCount": 29,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/057%20-%20%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AF.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/057.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/057.mp3",
+    "duration": 882
   },
   {
     "number": 58,
@@ -519,7 +576,8 @@ const SURAHS_DATA = [
     "ayahCount": 22,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/058%20-%20%D8%A7%D9%84%D9%85%D8%AC%D8%A7%D8%AF%D9%84%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/058.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/058.mp3",
+    "duration": 591
   },
   {
     "number": 59,
@@ -528,7 +586,8 @@ const SURAHS_DATA = [
     "ayahCount": 24,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/059%20-%20%D8%A7%D9%84%D8%AD%D8%B4%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/059.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/059.mp3",
+    "duration": 569
   },
   {
     "number": 60,
@@ -537,7 +596,8 @@ const SURAHS_DATA = [
     "ayahCount": 13,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/060%20-%20%D8%A7%D9%84%D9%85%D9%85%D8%AA%D8%AD%D9%86%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/060.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/060.mp3",
+    "duration": 529
   },
   {
     "number": 61,
@@ -546,7 +606,8 @@ const SURAHS_DATA = [
     "ayahCount": 14,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/061%20-%20%D8%A7%D9%84%D8%B5%D9%81.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/061.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/061.mp3",
+    "duration": 328
   },
   {
     "number": 62,
@@ -555,7 +616,8 @@ const SURAHS_DATA = [
     "ayahCount": 11,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/062%20-%20%D8%A7%D9%84%D8%AC%D9%85%D8%B9%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/062.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/062.mp3",
+    "duration": 252
   },
   {
     "number": 63,
@@ -564,7 +626,8 @@ const SURAHS_DATA = [
     "ayahCount": 11,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/063%20-%20%D8%A7%D9%84%D9%85%D9%86%D8%A7%D9%81%D9%82%D9%88%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/063.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/063.mp3",
+    "duration": 283
   },
   {
     "number": 64,
@@ -573,7 +636,8 @@ const SURAHS_DATA = [
     "ayahCount": 18,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/064%20-%20%D8%A7%D9%84%D8%AA%D8%BA%D8%A7%D8%A8%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/064.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/064.mp3",
+    "duration": 360
   },
   {
     "number": 65,
@@ -582,7 +646,8 @@ const SURAHS_DATA = [
     "ayahCount": 12,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/065%20-%20%D8%A7%D9%84%D8%B7%D9%84%D8%A7%D9%82.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/065.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/065.mp3",
+    "duration": 393
   },
   {
     "number": 66,
@@ -591,7 +656,8 @@ const SURAHS_DATA = [
     "ayahCount": 12,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/066%20-%20%D8%A7%D9%84%D8%AA%D8%AD%D8%B1%D9%8A%D9%85.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/066.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/066.mp3",
+    "duration": 363
   },
   {
     "number": 67,
@@ -600,7 +666,8 @@ const SURAHS_DATA = [
     "ayahCount": 30,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/067%20-%20%D8%A7%D9%84%D9%85%D9%84%D9%83.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/067.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/067.mp3",
+    "duration": 419
   },
   {
     "number": 68,
@@ -609,7 +676,8 @@ const SURAHS_DATA = [
     "ayahCount": 52,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/068%20-%20%D8%A7%D9%84%D9%82%D9%84%D9%85.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/068.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/068.mp3",
+    "duration": 418
   },
   {
     "number": 69,
@@ -618,7 +686,8 @@ const SURAHS_DATA = [
     "ayahCount": 52,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/069%20-%20%D8%A7%D9%84%D8%AD%D8%A7%D9%82%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/069.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/069.mp3",
+    "duration": 385
   },
   {
     "number": 70,
@@ -627,7 +696,8 @@ const SURAHS_DATA = [
     "ayahCount": 44,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/070%20-%20%D8%A7%D9%84%D9%85%D8%B9%D8%A7%D8%B1%D8%AC.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/070.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/070.mp3",
+    "duration": 324
   },
   {
     "number": 71,
@@ -636,7 +706,8 @@ const SURAHS_DATA = [
     "ayahCount": 28,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/071%20-%20%D9%86%D9%88%D8%AD.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/071.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/071.mp3",
+    "duration": 324
   },
   {
     "number": 72,
@@ -645,7 +716,8 @@ const SURAHS_DATA = [
     "ayahCount": 28,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/072%20-%20%D8%A7%D9%84%D8%AC%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/072.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/072.mp3",
+    "duration": 366
   },
   {
     "number": 73,
@@ -654,7 +726,8 @@ const SURAHS_DATA = [
     "ayahCount": 20,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/073%20-%20%D8%A7%D9%84%D9%85%D8%B2%D9%85%D9%84.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/073.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/073.mp3",
+    "duration": 265
   },
   {
     "number": 74,
@@ -663,7 +736,8 @@ const SURAHS_DATA = [
     "ayahCount": 56,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/074%20-%20%D8%A7%D9%84%D9%85%D8%AF%D8%AB%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/074.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/074.mp3",
+    "duration": 365
   },
   {
     "number": 75,
@@ -672,7 +746,8 @@ const SURAHS_DATA = [
     "ayahCount": 40,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/075%20-%20%D8%A7%D9%84%D9%82%D9%8A%D8%A7%D9%85%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/075.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/075.mp3",
+    "duration": 234
   },
   {
     "number": 76,
@@ -681,7 +756,8 @@ const SURAHS_DATA = [
     "ayahCount": 31,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/076%20-%20%D8%A7%D9%84%D8%A5%D9%86%D8%B3%D8%A7%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/076.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/076.mp3",
+    "duration": 387
   },
   {
     "number": 77,
@@ -690,7 +766,8 @@ const SURAHS_DATA = [
     "ayahCount": 50,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/077%20-%20%D8%A7%D9%84%D9%85%D8%B1%D8%B3%D9%84%D8%A7%D8%AA.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/077.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/077.mp3",
+    "duration": 303
   },
   {
     "number": 78,
@@ -699,7 +776,8 @@ const SURAHS_DATA = [
     "ayahCount": 40,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/078%20-%20%D8%A7%D9%84%D9%86%D8%A8%D8%A3.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/078.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/078.mp3",
+    "duration": 307
   },
   {
     "number": 79,
@@ -708,7 +786,8 @@ const SURAHS_DATA = [
     "ayahCount": 46,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/079%20-%20%D8%A7%D9%84%D9%86%D8%A7%D8%B2%D8%B9%D8%A7%D8%AA.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/079.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/079.mp3",
+    "duration": 290
   },
   {
     "number": 80,
@@ -717,7 +796,8 @@ const SURAHS_DATA = [
     "ayahCount": 42,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/080%20-%20%D8%B9%D8%A8%D8%B3.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/080.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/080.mp3",
+    "duration": 230
   },
   {
     "number": 81,
@@ -726,7 +806,8 @@ const SURAHS_DATA = [
     "ayahCount": 29,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/081%20-%20%D8%A7%D9%84%D8%AA%D9%83%D9%88%D9%8A%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/081.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/081.mp3",
+    "duration": 161
   },
   {
     "number": 82,
@@ -735,7 +816,8 @@ const SURAHS_DATA = [
     "ayahCount": 19,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/082%20-%20%D8%A7%D9%84%D8%A7%D9%86%D9%81%D8%B7%D8%A7%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/082.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/082.mp3",
+    "duration": 126
   },
   {
     "number": 83,
@@ -744,7 +826,8 @@ const SURAHS_DATA = [
     "ayahCount": 36,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/083%20-%20%D8%A7%D9%84%D9%85%D8%B7%D9%81%D9%81%D9%8A%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/083.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/083.mp3",
+    "duration": 278
   },
   {
     "number": 84,
@@ -753,7 +836,8 @@ const SURAHS_DATA = [
     "ayahCount": 25,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/084%20-%20%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D9%82%D8%A7%D9%82.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/084.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/084.mp3",
+    "duration": 174
   },
   {
     "number": 85,
@@ -762,7 +846,8 @@ const SURAHS_DATA = [
     "ayahCount": 22,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/085%20-%20%D8%A7%D9%84%D8%A8%D8%B1%D9%88%D8%AC.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/085.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/085.mp3",
+    "duration": 176
   },
   {
     "number": 86,
@@ -771,7 +856,8 @@ const SURAHS_DATA = [
     "ayahCount": 17,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/086%20-%20%D8%A7%D9%84%D8%B7%D8%A7%D8%B1%D9%82.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/086.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/086.mp3",
+    "duration": 103
   },
   {
     "number": 87,
@@ -780,7 +866,8 @@ const SURAHS_DATA = [
     "ayahCount": 19,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/087%20-%20%D8%A7%D9%84%D8%A3%D8%B9%D9%84%D9%89.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/087.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/087.mp3",
+    "duration": 114
   },
   {
     "number": 88,
@@ -789,7 +876,8 @@ const SURAHS_DATA = [
     "ayahCount": 26,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/088%20-%20%D8%A7%D9%84%D8%BA%D8%A7%D8%B4%D9%8A%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/088.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/088.mp3",
+    "duration": 147
   },
   {
     "number": 89,
@@ -798,7 +886,8 @@ const SURAHS_DATA = [
     "ayahCount": 30,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/089%20-%20%D8%A7%D9%84%D9%81%D8%AC%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/089.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/089.mp3",
+    "duration": 219
   },
   {
     "number": 90,
@@ -807,7 +896,8 @@ const SURAHS_DATA = [
     "ayahCount": 20,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/090%20-%20%D8%A7%D9%84%D8%A8%D9%84%D8%AF.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/090.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/090.mp3",
+    "duration": 128
   },
   {
     "number": 91,
@@ -816,7 +906,8 @@ const SURAHS_DATA = [
     "ayahCount": 15,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/091%20-%20%D8%A7%D9%84%D8%B4%D9%85%D8%B3.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/091.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/091.mp3",
+    "duration": 97
   },
   {
     "number": 92,
@@ -825,7 +916,8 @@ const SURAHS_DATA = [
     "ayahCount": 21,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/092%20-%20%D8%A7%D9%84%D9%84%D9%8A%D9%84.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/092.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/092.mp3",
+    "duration": 126
   },
   {
     "number": 93,
@@ -834,7 +926,8 @@ const SURAHS_DATA = [
     "ayahCount": 11,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/093%20-%20%D8%A7%D9%84%D8%B6%D8%AD%D9%89.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/093.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/093.mp3",
+    "duration": 69
   },
   {
     "number": 94,
@@ -843,7 +936,8 @@ const SURAHS_DATA = [
     "ayahCount": 8,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/094%20-%20%D8%A7%D9%84%D8%B4%D8%B1%D8%AD.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/094.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/094.mp3",
+    "duration": 44
   },
   {
     "number": 95,
@@ -852,7 +946,8 @@ const SURAHS_DATA = [
     "ayahCount": 8,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/095%20-%20%D8%A7%D9%84%D8%AA%D9%8A%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/095.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/095.mp3",
+    "duration": 55
   },
   {
     "number": 96,
@@ -861,7 +956,8 @@ const SURAHS_DATA = [
     "ayahCount": 19,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/096%20-%20%D8%A7%D9%84%D8%B9%D9%84%D9%82.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/096.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/096.mp3",
+    "duration": 110
   },
   {
     "number": 97,
@@ -870,7 +966,8 @@ const SURAHS_DATA = [
     "ayahCount": 5,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/097%20-%20%D8%A7%D9%84%D9%82%D8%AF%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/097.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/097.mp3",
+    "duration": 48
   },
   {
     "number": 98,
@@ -879,7 +976,8 @@ const SURAHS_DATA = [
     "ayahCount": 8,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/098%20-%20%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/098.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/098.mp3",
+    "duration": 151
   },
   {
     "number": 99,
@@ -888,7 +986,8 @@ const SURAHS_DATA = [
     "ayahCount": 8,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/099%20-%20%D8%A7%D9%84%D8%B2%D9%84%D8%B2%D9%84%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/099.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/099.mp3",
+    "duration": 61
   },
   {
     "number": 100,
@@ -897,7 +996,8 @@ const SURAHS_DATA = [
     "ayahCount": 11,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/100%20-%20%D8%A7%D9%84%D8%B9%D8%A7%D8%AF%D9%8A%D8%A7%D8%AA.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/100.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/100.mp3",
+    "duration": 65
   },
   {
     "number": 101,
@@ -906,7 +1006,8 @@ const SURAHS_DATA = [
     "ayahCount": 11,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/101%20-%20%D8%A7%D9%84%D9%82%D8%A7%D8%B1%D8%B9%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/101.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/101.mp3",
+    "duration": 62
   },
   {
     "number": 102,
@@ -915,7 +1016,8 @@ const SURAHS_DATA = [
     "ayahCount": 8,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/102%20-%20%D8%A7%D9%84%D8%AA%D9%83%D8%A7%D8%AB%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/102.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/102.mp3",
+    "duration": 49
   },
   {
     "number": 103,
@@ -924,7 +1026,8 @@ const SURAHS_DATA = [
     "ayahCount": 3,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/103%20-%20%D8%A7%D9%84%D8%B9%D8%B5%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/103.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/103.mp3",
+    "duration": 27
   },
   {
     "number": 104,
@@ -933,7 +1036,8 @@ const SURAHS_DATA = [
     "ayahCount": 9,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/104%20-%20%D8%A7%D9%84%D9%87%D9%85%D8%B2%D8%A9.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/104.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/104.mp3",
+    "duration": 55
   },
   {
     "number": 105,
@@ -942,7 +1046,8 @@ const SURAHS_DATA = [
     "ayahCount": 5,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/105%20-%20%D8%A7%D9%84%D9%81%D9%8A%D9%84.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/105.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/105.mp3",
+    "duration": 37
   },
   {
     "number": 106,
@@ -951,7 +1056,8 @@ const SURAHS_DATA = [
     "ayahCount": 4,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/106%20-%20%D9%82%D8%B1%D9%8A%D8%B4.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/106.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/106.mp3",
+    "duration": 33
   },
   {
     "number": 107,
@@ -960,7 +1066,8 @@ const SURAHS_DATA = [
     "ayahCount": 7,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/107%20-%20%D8%A7%D9%84%D9%85%D8%A7%D8%B9%D9%88%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/107.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/107.mp3",
+    "duration": 41
   },
   {
     "number": 108,
@@ -969,7 +1076,8 @@ const SURAHS_DATA = [
     "ayahCount": 3,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/108%20-%20%D8%A7%D9%84%D9%83%D9%88%D8%AB%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/108.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/108.mp3",
+    "duration": 21
   },
   {
     "number": 109,
@@ -978,7 +1086,8 @@ const SURAHS_DATA = [
     "ayahCount": 6,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/109%20-%20%D8%A7%D9%84%D9%83%D8%A7%D9%81%D8%B1%D9%88%D9%86.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/109.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/109.mp3",
+    "duration": 45
   },
   {
     "number": 110,
@@ -987,7 +1096,8 @@ const SURAHS_DATA = [
     "ayahCount": 3,
     "isMakki": false,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/110%20-%20%D8%A7%D9%84%D9%86%D8%B5%D8%B1.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/110.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/110.mp3",
+    "duration": 32
   },
   {
     "number": 111,
@@ -996,7 +1106,8 @@ const SURAHS_DATA = [
     "ayahCount": 5,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/111%20-%20%D8%A7%D9%84%D9%85%D8%B3%D8%AF.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/111.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/111.mp3",
+    "duration": 35
   },
   {
     "number": 112,
@@ -1005,7 +1116,8 @@ const SURAHS_DATA = [
     "ayahCount": 4,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/112%20-%20%D8%A7%D9%84%D8%A5%D8%AE%D9%84%D8%A7%D8%B5.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/112.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/112.mp3",
+    "duration": 19
   },
   {
     "number": 113,
@@ -1014,7 +1126,8 @@ const SURAHS_DATA = [
     "ayahCount": 5,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/113%20-%20%D8%A7%D9%84%D9%81%D9%84%D9%82.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/113.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/113.mp3",
+    "duration": 29
   },
   {
     "number": 114,
@@ -1023,6 +1136,7 @@ const SURAHS_DATA = [
     "ayahCount": 6,
     "isMakki": true,
     "url1967": "https://archive.org/download/a00ssssss260908ddd/114%20-%20%D8%A7%D9%84%D9%86%D8%A7%D8%B3.mp3",
-    "urlFallback": "https://server10.mp3quran.net/minsh/114.mp3"
+    "urlFallback": "https://server10.mp3quran.net/minsh/114.mp3",
+    "duration": 36
   }
 ];

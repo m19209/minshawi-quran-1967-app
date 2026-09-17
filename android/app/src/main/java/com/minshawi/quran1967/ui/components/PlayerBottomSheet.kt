@@ -99,7 +99,7 @@ fun PlayerBottomSheet(
                 .padding(horizontal = 14.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "الختمة المرتلة 1967 النقية النادرة (إذاعة القرآن الكريم)",
+                text = "ختمة 1967 النقية النادرة",
                 style = MaterialTheme.typography.labelSmall.copy(
                     color = GoldLight,
                     fontWeight = FontWeight.Bold
@@ -148,7 +148,17 @@ fun PlayerBottomSheet(
             style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Live Equalizer / Sound Wave (ترددات صوتية حية متحركة)
+        AnimatedEqualizer(
+            isPlaying = isPlaying,
+            barColor = GoldAccent,
+            barWidth = 3.2.dp,
+            modifier = Modifier.size(48.dp, 22.dp)
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
 
         // Seek Bar
         val sliderValue = if (duration > 0) currentPosition.toFloat() / duration else 0f

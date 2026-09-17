@@ -56,6 +56,7 @@ import com.minshawi.quran1967.data.Surah
 import com.minshawi.quran1967.prayer.AzanScheduler
 import com.minshawi.quran1967.prayer.CityLocation
 import com.minshawi.quran1967.prayer.PrayerCalculator
+import com.minshawi.quran1967.ui.components.AnimatedEqualizer
 import com.minshawi.quran1967.ui.components.AzanOverlayDialog
 import com.minshawi.quran1967.ui.components.PlayerBottomSheet
 import com.minshawi.quran1967.ui.components.PrayerCard
@@ -162,7 +163,7 @@ fun HomeScreen() {
                         .background(EmeraldSurface)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_tune),
+                        painter = painterResource(R.drawable.ic_settings),
                         contentDescription = "الإعدادات والدولة",
                         tint = GoldAccent
                     )
@@ -178,9 +179,6 @@ fun HomeScreen() {
                     PrayerCard(
                         schedule = prayerSchedule,
                         onSelectLocationClicked = { showSettingsDialog = true },
-                        onSimulateAzanClicked = {
-                            AzanScheduler.triggerTestAzan(context, prayerSchedule.currentPrayerName)
-                        },
                         onRefreshSchedule = { prayerScheduleKey++ },
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -305,7 +303,10 @@ fun HomeScreen() {
                 prayerScheduleKey++
                 AzanScheduler.scheduleAllPrayers(context, newLoc)
             },
-            onDismiss = { showSettingsDialog = false }
+            onDismiss = { showSettingsDialog = false },
+            onSimulateAzanClicked = {
+                AzanScheduler.triggerTestAzan(context, prayerSchedule.currentPrayerName)
+            }
         )
     }
 
@@ -490,7 +491,7 @@ fun MiniPlayerBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                // Waveform / Equalizer icon
+                // Dynamic Sound Wave Equalizer (علامة الترددات الصوتية الحية المتحركة)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -498,11 +499,11 @@ fun MiniPlayerBar(
                         .clip(RoundedCornerShape(10.dp))
                         .background(GoldAccent.copy(alpha = 0.15f))
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_graphic_eq),
-                        contentDescription = null,
-                        tint = GoldAccent,
-                        modifier = Modifier.size(22.dp)
+                    AnimatedEqualizer(
+                        isPlaying = isPlaying,
+                        barColor = GoldAccent,
+                        barWidth = 2.8.dp,
+                        modifier = Modifier.size(24.dp, 18.dp)
                     )
                 }
 
