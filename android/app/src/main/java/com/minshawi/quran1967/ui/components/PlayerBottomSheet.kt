@@ -1,11 +1,5 @@
 package com.minshawi.quran1967.ui.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode as AnimRepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,11 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.ui.res.painterResource
-import com.minshawi.quran1967.R
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,27 +23,22 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.minshawi.quran1967.R
 import com.minshawi.quran1967.audio.AudioPlaybackManager
 import com.minshawi.quran1967.audio.RepeatMode
 import com.minshawi.quran1967.data.Surah
 import com.minshawi.quran1967.ui.theme.AmberGlow
 import com.minshawi.quran1967.ui.theme.EmeraldCard
 import com.minshawi.quran1967.ui.theme.EmeraldDark
-import com.minshawi.quran1967.ui.theme.EmeraldLight
 import com.minshawi.quran1967.ui.theme.EmeraldSurface
 import com.minshawi.quran1967.ui.theme.GoldAccent
-import com.minshawi.quran1967.ui.theme.GoldDark
 import com.minshawi.quran1967.ui.theme.GoldLight
 import com.minshawi.quran1967.ui.theme.TextLight
 import com.minshawi.quran1967.ui.theme.TextSecondary
@@ -67,13 +51,13 @@ fun PlayerBottomSheet(
     isLoading: Boolean,
     currentPosition: Long,
     duration: Long,
-    playbackSpeed: Float,
+    playbackSpeed: Float = 1.0f,
     repeatMode: RepeatMode,
     onPlayPauseClicked: () -> Unit,
     onSeekTo: (Long) -> Unit,
     onNextClicked: () -> Unit,
     onPrevClicked: () -> Unit,
-    onSpeedChanged: (Float) -> Unit,
+    onSpeedChanged: (Float) -> Unit = {},
     onRepeatClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -122,19 +106,18 @@ fun PlayerBottomSheet(
 
         // Clean static header badge (no rotating element)
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
                 .background(GoldAccent.copy(alpha = 0.15f))
-                .padding(horizontal = 12.dp, vertical = 4.dp)
+                .border(1.dp, GoldAccent.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Text(
-                text = String.format("%03d", surah.number),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = GoldAccent,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = String.format("%03d", surah.number),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = GoldAccent,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -242,7 +225,7 @@ fun PlayerBottomSheet(
                     )
                 } else {
                     Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        painter = painterResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow),
                         contentDescription = if (isPlaying) "إيقاف مؤقت" else "تشغيل",
                         tint = EmeraldDark,
                         modifier = Modifier.size(36.dp)
@@ -303,11 +286,6 @@ fun PlayerBottomSheet(
                     },
                     style = MaterialTheme.typography.labelMedium.copy(
                         color = if (repeatMode != RepeatMode.OFF) GoldLight else TextSecondary
-                    )
-                )
-            }
-        }
-                        color = if (repeatMode != RepeatMode.OFF) GoldAccent else TextSecondary
                     )
                 )
             }

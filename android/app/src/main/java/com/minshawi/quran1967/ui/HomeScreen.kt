@@ -23,8 +23,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.res.painterResource
@@ -68,6 +66,7 @@ import com.minshawi.quran1967.ui.components.PrayerCard
 import com.minshawi.quran1967.ui.components.SettingsDialog
 import com.minshawi.quran1967.ui.theme.AmberGlow
 import com.minshawi.quran1967.ui.theme.BackgroundDark
+import com.minshawi.quran1967.ui.theme.CardBorder
 import com.minshawi.quran1967.ui.theme.EmeraldCard
 import com.minshawi.quran1967.ui.theme.EmeraldDark
 import com.minshawi.quran1967.ui.theme.EmeraldLight
@@ -81,7 +80,7 @@ import com.minshawi.quran1967.ui.theme.TextSecondary
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-    val context = LocalContext.ContextTransacted ?: LocalContext.current
+    val context = LocalContext.current
 
     // Audio & Azan States from AudioPlaybackManager
     val currentSurah by AudioPlaybackManager.currentSurah.collectAsState()
@@ -389,11 +388,9 @@ fun SurahListItem(
                 .background(if (isSelected) GoldAccent else EmeraldDark)
         ) {
             Icon(
-                imageVector = when {
-                    isCurrentlyPlaying -> Icons.Default.Pause
-                    isSelected -> Icons.Default.PlayArrow
-                    else -> Icons.Default.PlayArrow
-                },
+                painter = painterResource(
+                    if (isCurrentlyPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
+                ),
                 contentDescription = null,
                 tint = if (isSelected) EmeraldDark else GoldAccent,
                 modifier = Modifier.size(20.dp)
@@ -492,7 +489,9 @@ fun MiniPlayerBar(
                     )
                 } else {
                     Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        painter = painterResource(
+                            if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
+                        ),
                         contentDescription = null,
                         tint = EmeraldDark,
                         modifier = Modifier.size(24.dp)
