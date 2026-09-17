@@ -32,6 +32,7 @@ class MinshawiApp : Application() {
             ).apply {
                 description = "إشعار التحكم في تشغيل تلاوات الشيخ المنشاوي في الخلفية"
                 setShowBadge(false)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
             }
 
             // High Priority Channel for Azan

@@ -9,6 +9,7 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.minshawi.quran1967.MainActivity
 import com.minshawi.quran1967.MinshawiApp
@@ -55,6 +56,7 @@ class AzanPlaybackService : Service() {
         try {
             mediaPlayer?.release()
             mediaPlayer = MediaPlayer().apply {
+                setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
                 setAudioAttributes(
                     AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)

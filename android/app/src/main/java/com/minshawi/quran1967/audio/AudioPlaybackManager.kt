@@ -2,6 +2,8 @@ package com.minshawi.quran1967.audio
 
 import android.content.Context
 import android.net.Uri
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackParameters
@@ -52,7 +54,7 @@ object AudioPlaybackManager {
     private val _playbackSpeed = MutableStateFlow(1.0f)
     val playbackSpeed: StateFlow<Float> = _playbackSpeed.asStateFlow()
 
-    private val _repeatMode = MutableStateFlow(RepeatMode.OFF)
+    private val _repeatMode = MutableStateFlow(RepeatMode.ALL)
     val repeatMode: StateFlow<RepeatMode> = _repeatMode.asStateFlow()
 
     // Smart Azan Interruption State Machine
@@ -69,8 +71,15 @@ object AudioPlaybackManager {
     fun initialize(context: Context) {
         if (exoPlayer != null) return
 
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.CONTENT_TYPE_MUSIC)
+            .build()
+
         exoPlayer = ExoPlayer.Builder(context)
+            .setAudioAttributes(audioAttributes, true)
             .setHandleAudioBecomingNoisy(true)
+            .setWakeMode(C.WAKE_MODE_NETWORK)
             .build().apply {
                 addListener(object : Player.Listener {
                     override fun onIsPlayingChanged(playing: Boolean) {
@@ -195,11 +204,8 @@ object AudioPlaybackManager {
             RepeatMode.ONE -> {
                 _currentSurah.value?.let { playSurah(it, 0L) }
             }
-            RepeatMode.ALL -> {
+            RepeatMode.ALL, RepeatMode.OFF -> {
                 playNext()
-            }
-            RepeatMode.OFF -> {
-                _isPlaying.value = false
             }
         }
     }
