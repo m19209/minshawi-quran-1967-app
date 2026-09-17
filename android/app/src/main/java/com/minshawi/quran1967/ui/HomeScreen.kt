@@ -60,6 +60,7 @@ import com.minshawi.quran1967.ui.components.AzanOverlayDialog
 import com.minshawi.quran1967.ui.components.PlayerBottomSheet
 import com.minshawi.quran1967.ui.components.PrayerCard
 import com.minshawi.quran1967.ui.components.SettingsDialog
+import com.minshawi.quran1967.util.DownloadHelper
 import com.minshawi.quran1967.ui.theme.BackgroundDark
 import com.minshawi.quran1967.ui.theme.CardBorder
 import com.minshawi.quran1967.ui.theme.EmeraldCard
@@ -257,6 +258,9 @@ fun HomeScreen() {
                         onItemClicked = {
                             AudioPlaybackManager.playSurah(surah)
                             showFullPlayerSheet = true
+                        },
+                        onDownloadClicked = {
+                            DownloadHelper.downloadSurah(context, surah)
                         }
                     )
                 }
@@ -284,7 +288,10 @@ fun HomeScreen() {
                 onSeekTo = { AudioPlaybackManager.seekTo(it) },
                 onNextClicked = { AudioPlaybackManager.playNext() },
                 onPrevClicked = { AudioPlaybackManager.playPrevious() },
-                onRepeatClicked = { AudioPlaybackManager.cycleRepeatMode() }
+                onRepeatClicked = { AudioPlaybackManager.cycleRepeatMode() },
+                onDownloadClicked = {
+                    DownloadHelper.downloadSurah(context, currentSurah!!)
+                }
             )
         }
     }
@@ -319,7 +326,8 @@ fun SurahListItem(
     isCurrentlyPlaying: Boolean,
     isSelected: Boolean,
     onPlayClicked: () -> Unit,
-    onItemClicked: () -> Unit
+    onItemClicked: () -> Unit,
+    onDownloadClicked: () -> Unit
 ) {
     val itemModifier = if (isSelected) {
         Modifier
@@ -359,7 +367,10 @@ fun SurahListItem(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f, fill = false)
+        ) {
             // Surah Number inside Islamic Badge
             Box(
                 contentAlignment = Alignment.Center,
@@ -392,22 +403,42 @@ fun SurahListItem(
             }
         }
 
-        // Action Play / Pause Icon
-        IconButton(
-            onClick = onPlayClicked,
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(if (isSelected) GoldAccent else EmeraldDark)
-        ) {
-            Icon(
-                painter = painterResource(
-                    if (isCurrentlyPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
-                ),
-                contentDescription = null,
-                tint = if (isSelected) EmeraldDark else GoldAccent,
-                modifier = Modifier.size(20.dp)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Action Download Icon
+            IconButton(
+                onClick = onDownloadClicked,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(EmeraldDark.copy(alpha = 0.7f))
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_download),
+                    contentDescription = "تنزيل سورة ${surah.arabicName}",
+                    tint = GoldLight.copy(alpha = 0.85f),
+                    modifier = Modifier.size(17.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // Action Play / Pause Icon
+            IconButton(
+                onClick = onPlayClicked,
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(if (isSelected) GoldAccent else EmeraldDark)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        if (isCurrentlyPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
+                    ),
+                    contentDescription = null,
+                    tint = if (isSelected) EmeraldDark else GoldAccent,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }

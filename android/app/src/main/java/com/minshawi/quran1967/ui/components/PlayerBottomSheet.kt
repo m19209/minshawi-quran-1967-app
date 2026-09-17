@@ -57,6 +57,7 @@ fun PlayerBottomSheet(
     onNextClicked: () -> Unit,
     onPrevClicked: () -> Unit,
     onRepeatClicked: () -> Unit,
+    onDownloadClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val currentPosition by AudioPlaybackManager.currentPosition.collectAsState()
@@ -165,7 +166,8 @@ fun PlayerBottomSheet(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Time indicators
+        // Time indicators: Elapsed counts up (00:00...), Remaining counts down without '-' sign
+        val remainingTime = if (duration > 0) (duration - currentPosition).coerceAtLeast(0L) else 0L
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -175,7 +177,7 @@ fun PlayerBottomSheet(
                 style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
             )
             Text(
-                text = formatDuration(duration),
+                text = formatDuration(remainingTime),
                 style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
             )
         }
@@ -260,10 +262,10 @@ fun PlayerBottomSheet(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Bottom Extras: Repeat Mode (Centered & Clean - Speed button removed)
+        // Bottom Extras: Repeat Mode & Download Recitation (Symmetrical & Elegant)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Repeat Toggle Button
@@ -273,7 +275,7 @@ fun PlayerBottomSheet(
                     .clip(RoundedCornerShape(10.dp))
                     .background(EmeraldSurface)
                     .clickable { onRepeatClicked() }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
                 Icon(
                     painter = painterResource(if (repeatMode == RepeatMode.ONE) R.drawable.ic_repeat_one else R.drawable.ic_repeat),
@@ -290,6 +292,30 @@ fun PlayerBottomSheet(
                     },
                     style = MaterialTheme.typography.labelMedium.copy(
                         color = if (repeatMode != RepeatMode.OFF) GoldLight else TextSecondary
+                    )
+                )
+            }
+
+            // Download Surah Button
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(EmeraldSurface)
+                    .clickable { onDownloadClicked() }
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_download),
+                    contentDescription = "تنزيل السورة",
+                    tint = GoldAccent,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "تنزيل السورة",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = GoldLight
                     )
                 )
             }

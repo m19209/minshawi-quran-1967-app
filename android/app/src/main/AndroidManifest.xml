@@ -21,6 +21,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <!-- Storage permission for downloading recitations on Android 9 and lower -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+
     <application
         android:name=".MinshawiApp"
         android:allowBackup="true"
@@ -30,6 +33,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MinshawiQuran1967"
         tools:targetApi="34">
+
+        <!-- Media notification small icon for lock screen and status bar -->
+        <meta-data
+            android:name="androidx.media3.session.NOTIFICATION_ICON"
+            android:resource="@drawable/ic_graphic_eq" />
 
         <!-- Main Activity -->
         <activity
