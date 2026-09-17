@@ -47,8 +47,8 @@ import com.minshawi.quran1967.ui.theme.TextLight
 import com.minshawi.quran1967.ui.theme.TextSecondary
 
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.filled.RadioButtonChecked
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -276,11 +276,14 @@ fun SettingsDialog(
                                     style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
                                 )
                             }
-                            Icon(
-                                imageVector = if (isVoiceSelected) Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
-                                contentDescription = null,
-                                tint = if (isVoiceSelected) GoldAccent else TextSecondary,
-                                modifier = Modifier.size(18.dp)
+                            RadioButton(
+                                selected = isVoiceSelected,
+                                onClick = null,
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = GoldAccent,
+                                    unselectedColor = TextSecondary
+                                ),
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
