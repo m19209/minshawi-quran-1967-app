@@ -19,7 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LocationCity
+import androidx.compose.ui.res.painterResource
+import com.minshawi.quran1967.R
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -130,7 +131,7 @@ fun SettingsDialog(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    imageVector = Icons.Default.LocationCity,
+                                    painter = painterResource(R.drawable.ic_location_city),
                                     contentDescription = null,
                                     tint = if (isSelected) GoldAccent else TextSecondary,
                                     modifier = Modifier.size(20.dp)

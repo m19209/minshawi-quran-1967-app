@@ -17,8 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.ui.res.painterResource
+import com.minshawi.quran1967.R
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -92,7 +93,7 @@ fun AzanOverlayDialog(
                         .border(2.dp, GoldAccent, CircleShape)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.NotificationsActive,
+                        painter = painterResource(R.drawable.ic_notifications_active),
                         contentDescription = "الأذان",
                         tint = AmberGlow,
                         modifier = Modifier.size(42.dp)

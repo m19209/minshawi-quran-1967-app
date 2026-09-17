@@ -22,14 +22,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FastForward
-import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Repeat
-import androidx.compose.material.icons.filled.RepeatOne
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.ui.res.painterResource
+import com.minshawi.quran1967.R
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -208,7 +204,7 @@ fun PlayerBottomSheet(
             // Previous Surah
             IconButton(onClick = onPrevClicked) {
                 Icon(
-                    imageVector = Icons.Default.SkipPrevious,
+                    painter = painterResource(R.drawable.ic_skip_previous),
                     contentDescription = "السورة السابقة",
                     tint = TextLight,
                     modifier = Modifier.size(28.dp)
@@ -218,7 +214,7 @@ fun PlayerBottomSheet(
             // Seek Backward 10s
             IconButton(onClick = { AudioPlaybackManager.seekBackward(10000L) }) {
                 Icon(
-                    imageVector = Icons.Default.FastRewind,
+                    painter = painterResource(R.drawable.ic_fast_rewind),
                     contentDescription = "ترجيع 10 ثواني",
                     tint = GoldLight,
                     modifier = Modifier.size(26.dp)
@@ -257,7 +253,7 @@ fun PlayerBottomSheet(
             // Seek Forward 10s
             IconButton(onClick = { AudioPlaybackManager.seekForward(10000L) }) {
                 Icon(
-                    imageVector = Icons.Default.FastForward,
+                    painter = painterResource(R.drawable.ic_fast_forward),
                     contentDescription = "تقديم 10 ثواني",
                     tint = GoldLight,
                     modifier = Modifier.size(26.dp)
@@ -267,7 +263,7 @@ fun PlayerBottomSheet(
             // Next Surah
             IconButton(onClick = onNextClicked) {
                 Icon(
-                    imageVector = Icons.Default.SkipNext,
+                    painter = painterResource(R.drawable.ic_skip_next),
                     contentDescription = "السورة التالية",
                     tint = TextLight,
                     modifier = Modifier.size(28.dp)
@@ -277,34 +273,12 @@ fun PlayerBottomSheet(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Bottom Extras: Speed, Repeat Mode
+        // Bottom Extras: Repeat Mode (Centered & Clean - Speed button removed)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Speed Toggle Button
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(EmeraldSurface)
-                    .clickable {
-                        val nextSpeed = when (playbackSpeed) {
-                            1.0f -> 1.25f
-                            1.25f -> 1.5f
-                            else -> 1.0f
-                        }
-                        onSpeedChanged(nextSpeed)
-                    }
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text(
-                    text = "السرعة: ${playbackSpeed}x",
-                    style = MaterialTheme.typography.labelSmall.copy(color = GoldLight)
-                )
-            }
-
             // Repeat Toggle Button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -312,22 +286,27 @@ fun PlayerBottomSheet(
                     .clip(RoundedCornerShape(10.dp))
                     .background(EmeraldSurface)
                     .clickable { onRepeatClicked() }
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Icon(
-                    imageVector = if (repeatMode == RepeatMode.ONE) Icons.Default.RepeatOne else Icons.Default.Repeat,
+                    painter = painterResource(if (repeatMode == RepeatMode.ONE) R.drawable.ic_repeat_one else R.drawable.ic_repeat),
                     contentDescription = "التكرار",
                     tint = if (repeatMode != RepeatMode.OFF) GoldAccent else TextSecondary,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = when (repeatMode) {
                         RepeatMode.OFF -> "تكرار: معطل"
                         RepeatMode.ALL -> "تكرار: الكل"
                         RepeatMode.ONE -> "تكرار: السورة"
                     },
-                    style = MaterialTheme.typography.labelSmall.copy(
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = if (repeatMode != RepeatMode.OFF) GoldLight else TextSecondary
+                    )
+                )
+            }
+        }
                         color = if (repeatMode != RepeatMode.OFF) GoldAccent else TextSecondary
                     )
                 )

@@ -23,12 +23,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.ui.res.painterResource
+import com.minshawi.quran1967.R
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -167,7 +167,7 @@ fun HomeScreen() {
                         .background(EmeraldSurface)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Tune,
+                        painter = painterResource(R.drawable.ic_tune),
                         contentDescription = "الإعدادات والدولة",
                         tint = GoldAccent
                     )
@@ -452,7 +452,7 @@ fun MiniPlayerBar(
                         .background(GoldAccent.copy(alpha = 0.15f))
                 ) {
                     Icon(
-                        imageVector = Icons.Default.GraphicEq,
+                        painter = painterResource(R.drawable.ic_graphic_eq),
                         contentDescription = null,
                         tint = AmberGlow,
                         modifier = Modifier.size(22.dp)
