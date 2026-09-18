@@ -851,6 +851,26 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+.download-progress-circle .stop-icon {
+    display: none;
+    z-index: 2;
+}
+
+.download-progress-circle.downloading:hover .pct-text {
+    display: none;
+}
+
+.download-progress-circle.downloading:hover .stop-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ef4444;
+}
+
+.download-progress-circle.downloading:hover .circle-bar {
+    stroke: #ef4444;
+}
+
 .download-speed-text {
     font-size: 8px;
     font-weight: 600;
