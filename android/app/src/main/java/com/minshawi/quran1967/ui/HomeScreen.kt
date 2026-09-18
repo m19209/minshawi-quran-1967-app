@@ -116,6 +116,7 @@ fun HomeScreen() {
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showFullPlayerSheet by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var selectedCompletedSurah by remember { mutableStateOf<Surah?>(null) }
 
     // Dynamic prayer schedule recalculated on location change or when a prayer passes
     val prayerSchedule = remember(selectedLocation, prayerScheduleKey) {
@@ -201,9 +202,8 @@ fun HomeScreen() {
                 item(key = "header_prayer_card", contentType = "header") {
                     PrayerCard(
                         schedule = prayerSchedule,
-                        currentLocation = selectedLocation,
-                        onOpenSettings = { showSettingsDialog = true },
-                        onSelectLocationClicked = { showSettingsDialog = true }
+                        onSelectLocationClicked = { showSettingsDialog = true },
+                        onRefreshSchedule = { prayerScheduleKey++ }
                     )
                     Spacer(modifier = Modifier.height(14.dp))
                 }
