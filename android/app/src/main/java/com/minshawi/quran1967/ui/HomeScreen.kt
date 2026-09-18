@@ -296,7 +296,10 @@ fun HomeScreen() {
                             selectedCompletedSurah = surah
                         },
                         onItemClicked = {
-                            if (isCurrent) {
+                            if (isCurrent && isPlaying) {
+                                showFullPlayerSheet = true
+                            } else if (isCurrent && !isPlaying) {
+                                AudioPlaybackManager.togglePlayPause()
                                 showFullPlayerSheet = true
                             } else {
                                 AudioPlaybackManager.playSurah(surah, 0L)

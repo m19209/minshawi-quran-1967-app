@@ -52,20 +52,26 @@ object DownloadHelper {
         // 1. Primary app-specific music storage (Zero permissions needed, 100% reliable on Android 10+)
         val appMusicDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.filesDir
         val primaryFile = File(appMusicDir, fileName)
-        if (primaryFile.exists() && primaryFile.length() > 50_000) {
-            return primaryFile
-        }
+        try {
+            if (primaryFile.exists() && primaryFile.length() > 50_000) {
+                return primaryFile
+            }
+        } catch (_: Throwable) {}
 
-        // 2. Legacy public Downloads storage fallback
-        val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
-        val pubFile = File(pubDir, fileName)
-        if (pubFile.exists() && pubFile.length() > 50_000) {
-            return pubFile
-        }
+        // 2. Legacy public Downloads storage fallback (safely guarded)
+        try {
+            val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
+            val pubFile = File(pubDir, fileName)
+            if (pubFile.exists() && pubFile.length() > 50_000) {
+                return pubFile
+            }
+        } catch (_: Throwable) {}
 
-        if (!appMusicDir.exists()) {
-            appMusicDir.mkdirs()
-        }
+        try {
+            if (!appMusicDir.exists()) {
+                appMusicDir.mkdirs()
+            }
+        } catch (_: Throwable) {}
         return primaryFile
     }
 
@@ -73,25 +79,35 @@ object DownloadHelper {
         val fileName = String.format(Locale.US, "%03d - %s - المنشاوي 1967.mp3.part", surah.number, surah.arabicName)
         val appMusicDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.filesDir
         val primaryPart = File(appMusicDir, fileName)
-        if (primaryPart.exists()) {
-            return primaryPart
-        }
+        try {
+            if (primaryPart.exists()) {
+                return primaryPart
+            }
+        } catch (_: Throwable) {}
 
-        val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
-        val pubPart = File(pubDir, fileName)
-        if (pubPart.exists()) {
-            return pubPart
-        }
+        try {
+            val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
+            val pubPart = File(pubDir, fileName)
+            if (pubPart.exists()) {
+                return pubPart
+            }
+        } catch (_: Throwable) {}
 
-        if (!appMusicDir.exists()) {
-            appMusicDir.mkdirs()
-        }
+        try {
+            if (!appMusicDir.exists()) {
+                appMusicDir.mkdirs()
+            }
+        } catch (_: Throwable) {}
         return primaryPart
     }
 
     fun isSurahDownloaded(context: Context, surah: Surah): Boolean {
-        val file = getLocalSurahFile(context, surah)
-        return file.exists() && file.length() > 50_000
+        return try {
+            val file = getLocalSurahFile(context, surah)
+            file.exists() && file.length() > 50_000
+        } catch (_: Throwable) {
+            false
+        }
     }
 
     fun isNetworkAvailable(context: Context): Boolean {

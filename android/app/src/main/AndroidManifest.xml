@@ -32,6 +32,7 @@
         android:roundIcon="@drawable/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MinshawiQuran1967"
+        android:usesCleartextTraffic="true"
         tools:targetApi="34">
 
         <!-- Media notification small icon for lock screen and status bar -->
