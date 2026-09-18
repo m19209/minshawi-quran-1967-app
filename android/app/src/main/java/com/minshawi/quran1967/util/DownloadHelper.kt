@@ -150,7 +150,7 @@ object DownloadHelper {
                     var lastBytes = 0L
                     var lastTime = System.currentTimeMillis()
 
-                    var read: Int
+                    var read = 0
                     while (coroutineContext[Job]?.isActive == true && inputStream.read(buffer).also { read = it } != -1) {
                         outputStream.write(buffer, 0, read)
                         bytesDownloaded += read
