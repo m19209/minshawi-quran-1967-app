@@ -14,10 +14,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.content.ContextCompat
 import com.minshawi.quran1967.audio.AudioPlaybackManager
 import com.minshawi.quran1967.audio.QuranAudioService
+import com.minshawi.quran1967.data.QuranRepository
 import com.minshawi.quran1967.prayer.AzanScheduler
 import com.minshawi.quran1967.prayer.CityLocation
 import com.minshawi.quran1967.ui.HomeScreen
 import com.minshawi.quran1967.ui.theme.MinshawiQuranTheme
+import com.minshawi.quran1967.util.DownloadHelper
 
 class MainActivity : ComponentActivity() {
 
