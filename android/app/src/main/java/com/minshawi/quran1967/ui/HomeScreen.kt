@@ -283,7 +283,7 @@ fun HomeScreen() {
                             if (isCurrent) {
                                 AudioPlaybackManager.togglePlayPause()
                             } else {
-                                AudioPlaybackManager.playSurah(surah)
+                                AudioPlaybackManager.playSurah(surah, 0L)
                             }
                         },
                         onDownloadClicked = {
@@ -296,8 +296,12 @@ fun HomeScreen() {
                             selectedCompletedSurah = surah
                         },
                         onItemClicked = {
-                            AudioPlaybackManager.playSurah(surah)
-                            showFullPlayerSheet = true
+                            if (isCurrent) {
+                                showFullPlayerSheet = true
+                            } else {
+                                AudioPlaybackManager.playSurah(surah, 0L)
+                                showFullPlayerSheet = true
+                            }
                         }
                     )
                 }
@@ -370,7 +374,7 @@ fun HomeScreen() {
             surah = completedSurah,
             fileSizeMb = sizeMb,
             onPlayOffline = {
-                AudioPlaybackManager.playSurah(completedSurah)
+                AudioPlaybackManager.playSurah(completedSurah, 0L)
                 showFullPlayerSheet = true
             },
             onDeleteSurah = {
@@ -399,7 +403,7 @@ fun SurahListItem(
     val context = LocalContext.current
     val isDownloading = downloadState?.isDownloading == true
     val isPaused = downloadState?.isPaused == true
-    val isCompleted = downloadState?.isCompleted == true
+    val isCompleted = downloadState?.isCompleted == true || DownloadHelper.isSurahDownloaded(context, surah)
 
     val itemModifier = if (isSelected) {
         Modifier

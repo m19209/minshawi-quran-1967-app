@@ -48,26 +48,50 @@ object DownloadHelper {
 
     fun getLocalSurahFile(context: Context, surah: Surah): File {
         val fileName = String.format(Locale.US, "%03d - %s - المنشاوي 1967.mp3", surah.number, surah.arabicName)
-        val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
-        if (!dir.exists()) {
-            dir.mkdirs()
+
+        // 1. Primary app-specific music storage (Zero permissions needed, 100% reliable on Android 10+)
+        val appMusicDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.filesDir
+        val primaryFile = File(appMusicDir, fileName)
+        if (primaryFile.exists() && primaryFile.length() > 50_000) {
+            return primaryFile
         }
-        return File(dir, fileName)
+
+        // 2. Legacy public Downloads storage fallback
+        val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
+        val pubFile = File(pubDir, fileName)
+        if (pubFile.exists() && pubFile.length() > 50_000) {
+            return pubFile
+        }
+
+        if (!appMusicDir.exists()) {
+            appMusicDir.mkdirs()
+        }
+        return primaryFile
     }
 
     fun getPartSurahFile(context: Context, surah: Surah): File {
         val fileName = String.format(Locale.US, "%03d - %s - المنشاوي 1967.mp3.part", surah.number, surah.arabicName)
-        val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
-        if (!dir.exists()) {
-            dir.mkdirs()
+        val appMusicDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.filesDir
+        val primaryPart = File(appMusicDir, fileName)
+        if (primaryPart.exists()) {
+            return primaryPart
         }
-        return File(dir, fileName)
+
+        val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
+        val pubPart = File(pubDir, fileName)
+        if (pubPart.exists()) {
+            return pubPart
+        }
+
+        if (!appMusicDir.exists()) {
+            appMusicDir.mkdirs()
+        }
+        return primaryPart
     }
 
     fun isSurahDownloaded(context: Context, surah: Surah): Boolean {
         val file = getLocalSurahFile(context, surah)
-        // A complete Surah MP3 is at least 150 KB
-        return file.exists() && file.length() > 150_000
+        return file.exists() && file.length() > 50_000
     }
 
     fun isNetworkAvailable(context: Context): Boolean {
@@ -163,10 +187,14 @@ object DownloadHelper {
         }
 
         val partFile = getPartSurahFile(context, surah)
-        val isResuming = partFile.exists() && partFile.length() > 0 && currentState?.isPaused == true
+        val existingBytes = if (partFile.exists()) partFile.length() else 0L
+        val isResuming = existingBytes > 0L
 
         if (isResuming) {
-            Toast.makeText(context, "جاري استئناف تنزيل سورة ${surah.arabicName}...", Toast.LENGTH_SHORT).show()
+            val current = currentState
+            val total = current?.totalBytes?.takeIf { it > 0 } ?: (15L * 1024 * 1024)
+            val pct = ((existingBytes * 100) / total).toInt().coerceIn(1, 99)
+            Toast.makeText(context, "جاري استئناف تنزيل سورة ${surah.arabicName} من $pct%...", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(context, "بدأ تنزيل سورة ${surah.arabicName}...", Toast.LENGTH_SHORT).show()
         }
@@ -183,9 +211,9 @@ object DownloadHelper {
                 var outputStream: FileOutputStream? = null
 
                 try {
-                    val existingBytes = if (partFile.exists()) partFile.length() else 0L
+                    val currentPartLen = if (partFile.exists()) partFile.length() else 0L
 
-                    connection = openUrlConnection(streamUrl, existingBytes)
+                    connection = openUrlConnection(streamUrl, currentPartLen)
                     if (connection == null) continue
 
                     val responseCode = connection.responseCode
@@ -199,10 +227,12 @@ object DownloadHelper {
 
                     activeConnections[surah.number] = connection
 
+                    val contentRange = connection.getHeaderField("Content-Range")
+                    val totalFromRange = contentRange?.substringAfterLast("/")?.trim()?.toLongOrNull()
                     val contentLength = connection.contentLengthLong.takeIf { it > 0 } ?: (15L * 1024 * 1024)
-                    val totalBytes = if (isPartial) (existingBytes + contentLength) else contentLength
+                    val totalBytes = totalFromRange ?: if (isPartial) (currentPartLen + contentLength) else contentLength
 
-                    val startOffset = if (isPartial) existingBytes else 0L
+                    val startOffset = if (isPartial) currentPartLen else 0L
                     if (!isPartial && partFile.exists()) {
                         partFile.delete()
                     }
@@ -368,20 +398,25 @@ object DownloadHelper {
         var currentUrl = urlString
         var redirects = 0
         var connection: HttpURLConnection? = null
-        while (redirects < 5) {
+        while (redirects < 6) {
             val url = URL(currentUrl)
             connection = url.openConnection() as HttpURLConnection
-            connection.instanceFollowRedirects = true
-            connection.connectTimeout = 15000
-            connection.readTimeout = 25000
+            // Crucial: false prevents Java from silently dropping the HTTP Range header across cross-host 302 redirects!
+            connection.instanceFollowRedirects = false
+            connection.connectTimeout = 20000
+            connection.readTimeout = 30000
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) MinshawiQuran1967App")
             if (rangeStart > 0L) {
                 connection.setRequestProperty("Range", "bytes=$rangeStart-")
             }
             val status = connection.responseCode
-            if (status == HttpURLConnection.HTTP_MOVED_PERM || status == HttpURLConnection.HTTP_MOVED_TEMP || status == 307 || status == 308) {
-                currentUrl = connection.getHeaderField("Location") ?: break
-                connection.disconnect()
+            if (status == HttpURLConnection.HTTP_MOVED_PERM || 
+                status == HttpURLConnection.HTTP_MOVED_TEMP || 
+                status == HttpURLConnection.HTTP_SEE_OTHER ||
+                status == 307 || status == 308) {
+                val location = connection.getHeaderField("Location") ?: break
+                currentUrl = if (location.startsWith("http")) location else URL(url, location).toString()
+                try { connection.disconnect() } catch (_: Exception) {}
                 redirects++
             } else {
                 break
@@ -394,23 +429,34 @@ object DownloadHelper {
      * Pauses the active download cleanly, keeping the .part file for instant resuming.
      */
     fun pauseDownload(surahNumber: Int, surahName: String = "", context: Context? = null) {
-        activeJobs.remove(surahNumber)?.cancel()
-        activeConnections.remove(surahNumber)?.let {
-            try { it.disconnect() } catch (_: Exception) {}
-        }
+        val job = activeJobs.remove(surahNumber)
+        val conn = activeConnections.remove(surahNumber)
+        try { conn?.disconnect() } catch (_: Exception) {}
+        job?.cancel()
+
+        val partFile = context?.let { QuranRepository.getSurah(surahNumber)?.let { s -> getPartSurahFile(it, s) } }
+        val partLen = if (partFile?.exists() == true) partFile.length() else 0L
 
         val current = _downloadStates.value[surahNumber]
-        if (current != null) {
-            _downloadStates.value = _downloadStates.value + (surahNumber to current.copy(
-                isDownloading = false,
-                isPaused = true,
-                speedFormatted = "متوقف مؤقتاً"
-            ))
-        }
+        val total = current?.totalBytes?.takeIf { it > 0 } ?: (15L * 1024 * 1024)
+        val pct = if (partLen > 0) ((partLen * 100) / total).toInt().coerceIn(1, 99) else (current?.percentage ?: 0)
+        val frac = if (partLen > 0) (partLen.toFloat() / total.toFloat()).coerceIn(0.01f, 0.99f) else (current?.progress ?: 0f)
+
+        _downloadStates.value = _downloadStates.value + (surahNumber to DownloadProgress(
+            surahNumber = surahNumber,
+            progress = frac,
+            percentage = pct,
+            speedFormatted = "متوقف مؤقتاً",
+            downloadedFormatted = String.format(Locale.US, "%.1f / %.1f MB", partLen / (1024f * 1024f), total / (1024f * 1024f)),
+            isDownloading = false,
+            isPaused = true,
+            totalBytes = total,
+            downloadedBytes = partLen
+        ))
 
         if (context != null) {
             val name = surahName.ifEmpty { QuranRepository.getSurah(surahNumber)?.arabicName ?: "" }
-            Toast.makeText(context, "تم إيقاف تنزيل سورة $name مؤقتاً (اضغط للاستئناف)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "تم إيقاف تنزيل سورة $name مؤقتاً عند $pct% (اضغط للاستئناف)", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -445,10 +491,18 @@ object DownloadHelper {
         if (targetFile.exists()) targetFile.delete()
         if (partFile.exists()) partFile.delete()
 
+        // Also clean legacy public location if present
+        val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
+        val fileName = String.format(Locale.US, "%03d - %s - المنشاوي 1967.mp3", surah.number, surah.arabicName)
+        val pubFile = File(pubDir, fileName)
+        if (pubFile.exists()) pubFile.delete()
+        val pubPart = File(pubDir, "$fileName.part")
+        if (pubPart.exists()) pubPart.delete()
+
         try {
             MediaScannerConnection.scanFile(
                 context,
-                arrayOf(targetFile.absolutePath),
+                arrayOf(targetFile.absolutePath, pubFile.absolutePath),
                 arrayOf("audio/mpeg"),
                 null
             )

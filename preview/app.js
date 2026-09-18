@@ -622,9 +622,12 @@ function updatePlayState(playing) {
 }
 
 function togglePlay() {
-    if (quranAudio.paused) {
+    if (quranAudio.paused || quranAudio.ended) {
         if (!quranAudio.src || quranAudio.src === window.location.href) {
             loadSurah(currentSurahIndex, true);
+        } else if (quranAudio.ended) {
+            quranAudio.currentTime = 0;
+            quranAudio.play().then(function () { updatePlayState(true); });
         } else {
             quranAudio.play().then(function () { updatePlayState(true); });
         }
@@ -633,6 +636,18 @@ function togglePlay() {
         updatePlayState(false);
     }
 }
+
+// Auto-failover on stream network error to fast CDN mirror without losing position
+quranAudio.addEventListener('error', function () {
+    var cur = quranAudio.currentTime || 0;
+    var surah = SURAHS_DATA[currentSurahIndex];
+    if (surah && quranAudio.src !== surah.urlFallback) {
+        console.warn('Network issue on primary stream, switching to fallback CDN at', cur);
+        quranAudio.src = surah.urlFallback;
+        quranAudio.currentTime = cur;
+        quranAudio.play().then(function () { updatePlayState(true); });
+    }
+});
 
 // Immediately update duration when metadata is ready
 quranAudio.addEventListener('loadedmetadata', function () {
@@ -811,7 +826,7 @@ function resumeDownloadSurah(index) {
     state.downloading = true;
     state.paused = false;
     state.speed = '2.3 MB/s';
-    showToast('جاري استئناف تنزيل سورة ' + surah.arabicName + '...');
+    showToast('جاري استئناف تنزيل سورة ' + surah.arabicName + ' من ' + state.progress + '%...');
     updateSurahItemDom(index);
 
     var interval = setInterval(function () {

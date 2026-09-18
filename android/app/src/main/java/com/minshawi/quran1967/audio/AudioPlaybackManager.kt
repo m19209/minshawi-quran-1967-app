@@ -6,11 +6,16 @@ import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.minshawi.quran1967.data.QuranRepository
 import com.minshawi.quran1967.data.Surah
+import com.minshawi.quran1967.util.DownloadHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,14 +31,16 @@ enum class RepeatMode {
 }
 
 /**
- * Central singleton managing Quran playback, audio focus, and the intelligent
- * Azan interruption & auto-resumption mechanism.
+ * Central singleton managing Quran playback, audio focus, offline playback,
+ * error auto-recovery, and the intelligent Azan interruption & auto-resumption mechanism.
  */
 object AudioPlaybackManager {
 
     private var exoPlayer: ExoPlayer? = null
+    private var appContext: Context? = null
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     private var progressTrackerJob: Job? = null
+    private var isUsingFallback: Boolean = false
 
     // Playback States
     private val _currentSurah = MutableStateFlow<Surah?>(QuranRepository.getSurah(1))
@@ -69,6 +76,7 @@ object AudioPlaybackManager {
     private var savedSurahBeforeAzan: Surah? = null
 
     fun initialize(context: Context) {
+        appContext = context.applicationContext
         if (exoPlayer != null) return
 
         val audioAttributes = AudioAttributes.Builder()
@@ -76,7 +84,18 @@ object AudioPlaybackManager {
             .setContentType(C.CONTENT_TYPE_MUSIC)
             .build()
 
-        exoPlayer = ExoPlayer.Builder(context)
+        // Resilient HTTP Data Source with 30-second timeouts and redirect following
+        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
+            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) MinshawiQuran1967App")
+            .setConnectTimeoutMs(30000)
+            .setReadTimeoutMs(30000)
+            .setAllowCrossProtocolRedirects(true)
+
+        val mediaSourceFactory = DefaultMediaSourceFactory(context.applicationContext)
+            .setDataSourceFactory(DefaultDataSource.Factory(context.applicationContext, httpDataSourceFactory))
+
+        exoPlayer = ExoPlayer.Builder(context.applicationContext)
+            .setMediaSourceFactory(mediaSourceFactory)
             .setAudioAttributes(audioAttributes, true)
             .setHandleAudioBecomingNoisy(true)
             .setWakeMode(C.WAKE_MODE_NETWORK)
@@ -107,31 +126,106 @@ object AudioPlaybackManager {
                             }
                         }
                     }
+
+                    override fun onPlayerError(error: PlaybackException) {
+                        _isLoading.value = false
+                        val surah = _currentSurah.value ?: return
+                        val failedPos = _currentPosition.value
+
+                        // If primary stream failed, seamlessly switch to high-speed CDN mirror
+                        if (!isUsingFallback && surah.fallbackAudioUrl.isNotEmpty()) {
+                            isUsingFallback = true
+                            scope.launch {
+                                delay(300)
+                                playWithUrl(surah, surah.fallbackAudioUrl, failedPos)
+                            }
+                        } else {
+                            // Retry current track from the saved position
+                            scope.launch {
+                                delay(1200)
+                                if (_currentSurah.value?.number == surah.number) {
+                                    playSurah(surah, startPositionMs = failedPos)
+                                }
+                            }
+                        }
+                    }
                 })
             }
     }
 
     fun getPlayer(): ExoPlayer? = exoPlayer
 
-    fun playSurah(surah: Surah, startPositionMs: Long = 0L) {
+    /**
+     * Plays a Surah with automatic local offline detection and seamless position resumption.
+     */
+    fun playSurah(surah: Surah, startPositionMs: Long = -1L) {
+        val player = exoPlayer ?: return
+        val context = appContext
+
+        // Check if the Surah is downloaded locally on device
+        val localFile = if (context != null) DownloadHelper.getLocalSurahFile(context, surah) else null
+        val isOffline = localFile != null && localFile.exists() && localFile.length() > 50_000L
+
+        val isSameSurah = _currentSurah.value?.number == surah.number
+        _currentSurah.value = surah
+
+        // Target playback position: keep current position if same Surah and not explicitly set
+        val targetPosition = when {
+            startPositionMs >= 0L -> startPositionMs
+            isSameSurah && _currentPosition.value > 0L -> _currentPosition.value
+            else -> 0L
+        }
+
+        val mediaUri = if (isOffline) {
+            isUsingFallback = false
+            Uri.fromFile(localFile)
+        } else {
+            isUsingFallback = false
+            Uri.parse(surah.audioUrl1967)
+        }
+
+        val metadata = MediaMetadata.Builder()
+            .setTitle(surah.arabicName)
+            .setArtist("الشيخ محمد صديق المنشاوي")
+            .setAlbumTitle(if (isOffline) "الختمة المرتلة 1967 (محفوظة أوفلاين)" else "الختمة المرتلة 1967 النقية")
+            .setDisplayTitle("سورة ${surah.arabicName}")
+            .build()
+
+        val mediaItem = MediaItem.Builder()
+            .setUri(mediaUri)
+            .setMediaMetadata(metadata)
+            .build()
+
+        player.setMediaItem(mediaItem)
+        player.prepare()
+        if (targetPosition > 0L) {
+            player.seekTo(targetPosition)
+        }
+        player.play()
+    }
+
+    /**
+     * Plays a Surah with an explicit stream URL (e.g. CDN fallback) from a given timestamp.
+     */
+    fun playWithUrl(surah: Surah, url: String, startPositionMs: Long = 0L) {
         val player = exoPlayer ?: return
         _currentSurah.value = surah
 
         val metadata = MediaMetadata.Builder()
             .setTitle(surah.arabicName)
             .setArtist("الشيخ محمد صديق المنشاوي")
-            .setAlbumTitle("الختمة المرتلة 1967 النقية")
+            .setAlbumTitle("الختمة المرتلة 1967 (خادم بديل سريع)")
             .setDisplayTitle("سورة ${surah.arabicName}")
             .build()
 
         val mediaItem = MediaItem.Builder()
-            .setUri(Uri.parse(surah.audioUrl1967))
+            .setUri(Uri.parse(url))
             .setMediaMetadata(metadata)
             .build()
 
         player.setMediaItem(mediaItem)
         player.prepare()
-        if (startPositionMs > 0) {
+        if (startPositionMs > 0L) {
             player.seekTo(startPositionMs)
         }
         player.play()
@@ -142,10 +236,19 @@ object AudioPlaybackManager {
         if (player.isPlaying) {
             player.pause()
         } else {
-            if (player.playbackState == Player.STATE_IDLE && _currentSurah.value != null) {
-                playSurah(_currentSurah.value!!)
-            } else {
-                player.play()
+            val surah = _currentSurah.value ?: return
+            when (player.playbackState) {
+                Player.STATE_IDLE -> {
+                    // Always resume from the exact saved position!
+                    playSurah(surah, startPositionMs = _currentPosition.value)
+                }
+                Player.STATE_ENDED -> {
+                    // Track finished naturally, restart from beginning
+                    playSurah(surah, startPositionMs = 0L)
+                }
+                else -> {
+                    player.play()
+                }
             }
         }
     }
@@ -177,13 +280,13 @@ object AudioPlaybackManager {
     fun playNext() {
         val current = _currentSurah.value ?: return
         val nextNumber = if (current.number < 114) current.number + 1 else 1
-        QuranRepository.getSurah(nextNumber)?.let { playSurah(it) }
+        QuranRepository.getSurah(nextNumber)?.let { playSurah(it, 0L) }
     }
 
     fun playPrevious() {
         val current = _currentSurah.value ?: return
         val prevNumber = if (current.number > 1) current.number - 1 else 114
-        QuranRepository.getSurah(prevNumber)?.let { playSurah(it) }
+        QuranRepository.getSurah(prevNumber)?.let { playSurah(it, 0L) }
     }
 
     fun setSpeed(speed: Float) {
