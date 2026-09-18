@@ -1,8 +1,10 @@
 package com.minshawi.quran1967.data
 
+import androidx.compose.runtime.Immutable
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+@Immutable
 data class Surah(
     val number: Int,
     val arabicName: String,

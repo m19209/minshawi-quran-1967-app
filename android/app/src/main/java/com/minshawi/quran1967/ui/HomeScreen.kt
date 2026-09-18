@@ -402,41 +402,41 @@ fun SurahListItem(
     onCancelDownloadClicked: () -> Unit,
     onCompletedOptionsClicked: () -> Unit,
     onItemClicked: () -> Unit
-) {
-    val context = LocalContext.current
     val isDownloading = downloadState?.isDownloading == true
     val isPaused = downloadState?.isPaused == true
-    val isCompleted = downloadState?.isCompleted == true || DownloadHelper.isSurahDownloaded(context, surah)
+    val isCompleted = downloadState?.isCompleted == true
 
-    val itemModifier = if (isSelected) {
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clip(ItemShape)
-            .background(EmeraldCard)
-            .border(1.dp, SelectedBorderColor, ItemShape)
-            .clickable(onClick = onItemClicked)
-    } else {
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clip(ItemShape)
-            .background(EmeraldSurface)
-            .clickable(onClick = onItemClicked)
-    }
+    val itemModifier = remember(isSelected) {
+        if (isSelected) {
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .clip(ItemShape)
+                .background(EmeraldCard)
+                .border(1.dp, SelectedBorderColor, ItemShape)
+        } else {
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .clip(ItemShape)
+                .background(EmeraldSurface)
+        }
+    }.clickable(onClick = onItemClicked)
 
-    val badgeModifier = if (isSelected) {
-        Modifier
-            .size(36.dp)
-            .clip(BadgeShape)
-            .background(SelectedBadgeBg)
-            .border(1.dp, GoldAccent, BadgeShape)
-    } else {
-        Modifier
-            .size(36.dp)
-            .clip(BadgeShape)
-            .background(EmeraldDark)
-            .border(1.dp, CardBorder, BadgeShape)
+    val badgeModifier = remember(isSelected) {
+        if (isSelected) {
+            Modifier
+                .size(36.dp)
+                .clip(BadgeShape)
+                .background(SelectedBadgeBg)
+                .border(1.dp, GoldAccent, BadgeShape)
+        } else {
+            Modifier
+                .size(36.dp)
+                .clip(BadgeShape)
+                .background(EmeraldDark)
+                .border(1.dp, CardBorder, BadgeShape)
+        }
     }
 
     Column(
