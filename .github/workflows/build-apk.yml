@@ -30,7 +30,7 @@ jobs:
       - name: Build Debug APK with Gradle
         run: |
           cd android
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug --stacktrace --no-daemon || (echo "Retrying Gradle build after transient network issue..." && sleep 5 && ./gradlew assembleDebug --stacktrace --no-daemon)
 
       - name: Rename APK for Distribution
         run: |
