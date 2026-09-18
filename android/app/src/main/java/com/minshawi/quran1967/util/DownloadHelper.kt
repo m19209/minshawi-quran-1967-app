@@ -1,10 +1,13 @@
 package com.minshawi.quran1967.util
 
+import android.content.ContentUris
 import android.content.Context
 import android.media.MediaScannerConnection
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
 import com.minshawi.quran1967.data.QuranRepository
 import com.minshawi.quran1967.data.Surah
@@ -42,28 +45,283 @@ object DownloadHelper {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val activeJobs = ConcurrentHashMap<Int, Job>()
     private val activeConnections = ConcurrentHashMap<Int, HttpURLConnection>()
+    private val resolvedFiles = ConcurrentHashMap<Int, File>()
 
     private val _downloadStates = MutableStateFlow<Map<Int, DownloadProgress>>(emptyMap())
     val downloadStates: StateFlow<Map<Int, DownloadProgress>> = _downloadStates.asStateFlow()
 
-    fun getLocalSurahFile(context: Context, surah: Surah): File {
-        val fileName = String.format(Locale.US, "%03d - %s - المنشاوي 1967.mp3", surah.number, surah.arabicName)
+    fun normalizeArabic(text: String): String {
+        return text
+            .replace("أ", "ا")
+            .replace("إ", "ا")
+            .replace("آ", "ا")
+            .replace("ة", "ه")
+            .replace("ى", "ي")
+            .replace("\u064B", "")
+            .replace("\u064C", "")
+            .replace("\u064D", "")
+            .replace("\u064E", "")
+            .replace("\u064F", "")
+            .replace("\u0650", "")
+            .replace("\u0651", "")
+            .replace("\u0652", "")
+            .trim()
+    }
 
-        // 1. Primary app-specific music storage (Zero permissions needed, 100% reliable on Android 10+)
-        val appMusicDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.filesDir
-        val primaryFile = File(appMusicDir, fileName)
+    fun getCandidateFileNames(surah: Surah): List<String> {
+        val paddedNum = String.format(Locale.US, "%03d", surah.number)
+        val num = surah.number.toString()
+        val normArabic = normalizeArabic(surah.arabicName)
+        return listOf(
+            "$paddedNum - ${surah.arabicName} - المنشاوي 1967.mp3",
+            surah.archiveFileName,
+            "$paddedNum - ${surah.arabicName}.mp3",
+            "$num - ${surah.arabicName}.mp3",
+            "$paddedNum - $normArabic - المنشاوي 1967.mp3",
+            "$paddedNum - $normArabic.mp3",
+            "$num - $normArabic.mp3",
+            "$paddedNum - ${surah.arabicName} - المنشاوي.mp3",
+            "$num - ${surah.arabicName} - المنشاوي.mp3",
+            "$paddedNum - ${surah.englishName}.mp3",
+            "$num - ${surah.englishName}.mp3",
+            "$paddedNum.mp3",
+            "$num.mp3",
+            "${surah.arabicName}.mp3",
+            "$normArabic.mp3"
+        ).distinct()
+    }
+
+    fun isFileForSurah(file: File, surah: Surah): Boolean {
+        if (!file.exists() || file.isDirectory || file.length() < 30_000L) return false
+        val name = file.name
+        if (name.endsWith(".part", ignoreCase = true) || !name.endsWith(".mp3", ignoreCase = true)) return false
+
+        val paddedNum = String.format(Locale.US, "%03d", surah.number)
+        val numStr = surah.number.toString()
+        val cleanName = normalizeArabic(name.lowercase())
+        val cleanSurahArabic = normalizeArabic(surah.arabicName.lowercase())
+
+        if (getCandidateFileNames(surah).any { it.equals(name, ignoreCase = true) }) {
+            return true
+        }
+
+        val startsWithNumber = name.startsWith("$paddedNum ") ||
+                name.startsWith("$paddedNum-") ||
+                name.startsWith("${paddedNum}_") ||
+                name.startsWith("$paddedNum.") ||
+                name.startsWith("$numStr ") ||
+                name.startsWith("$numStr-") ||
+                name.startsWith("${numStr}_") ||
+                name.startsWith("$numStr.")
+
+        if (startsWithNumber) {
+            if (cleanName.contains(cleanSurahArabic) || file.parent?.contains("المنشاوي") == true || file.parent?.contains("Minshawi") == true) {
+                return true
+            }
+            val baseWithoutExt = name.substringBeforeLast(".").trim()
+            if (baseWithoutExt == paddedNum || baseWithoutExt == numStr) {
+                return true
+            }
+        }
+
+        if (cleanName.contains(cleanSurahArabic) && (cleanName.contains(paddedNum) || cleanName.contains(numStr))) {
+            return true
+        }
+
+        return false
+    }
+
+    fun getCandidateSearchDirectories(context: Context): List<File> {
+        val dirs = mutableListOf<File>()
+
+        // 1. Primary app-specific storage (Zero permissions required, 100% accessible on Android 10+)
+        context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.let {
+            dirs.add(it)
+            dirs.add(File(it, "مصحف المنشاوي 1967"))
+        }
+        context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let {
+            dirs.add(it)
+            dirs.add(File(it, "مصحف المنشاوي 1967"))
+        }
+        context.getExternalFilesDir(null)?.let {
+            dirs.add(it)
+            dirs.add(File(it, "مصحف المنشاوي 1967"))
+            dirs.add(File(it, "Downloads"))
+            dirs.add(File(it, "Music"))
+        }
+        dirs.add(context.filesDir)
+        dirs.add(File(context.filesDir, "مصحف المنشاوي 1967"))
+
+        // 2. Public Storage locations (where previous versions may have saved downloads)
         try {
-            if (primaryFile.exists() && primaryFile.length() > 50_000) {
+            val pubDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            if (pubDownloads != null) {
+                dirs.add(File(pubDownloads, "مصحف المنشاوي 1967"))
+                dirs.add(pubDownloads)
+            }
+        } catch (_: Throwable) {}
+
+        try {
+            val pubMusic = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+            if (pubMusic != null) {
+                dirs.add(File(pubMusic, "مصحف المنشاوي 1967"))
+                dirs.add(pubMusic)
+            }
+        } catch (_: Throwable) {}
+
+        try {
+            val extStorage = Environment.getExternalStorageDirectory()
+            if (extStorage != null) {
+                dirs.add(File(extStorage, "مصحف المنشاوي 1967"))
+                dirs.add(File(extStorage, "Download/مصحف المنشاوي 1967"))
+                dirs.add(File(extStorage, "Download"))
+            }
+        } catch (_: Throwable) {}
+
+        return dirs.distinct()
+    }
+
+    private fun querySurahInMediaStore(context: Context, surah: Surah, targetFile: File): Boolean {
+        try {
+            val paddedNum = String.format(Locale.US, "%03d", surah.number)
+            val projection = arrayOf(
+                MediaStore.MediaColumns._ID,
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                MediaStore.MediaColumns.SIZE
+            )
+
+            val urisToQuery = mutableListOf(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                urisToQuery.add(MediaStore.Downloads.EXTERNAL_CONTENT_URI)
+            }
+
+            for (contentUri in urisToQuery) {
+                try {
+                    val selection = "(${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ? OR ${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ?) AND ${MediaStore.MediaColumns.SIZE} > 30000"
+                    val selectionArgs = arrayOf("%$paddedNum%", "%${surah.arabicName}%")
+
+                    context.contentResolver.query(contentUri, projection, selection, selectionArgs, null)?.use { cursor ->
+                        val idCol = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                        val nameCol = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+                        val sizeCol = cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)
+
+                        while (cursor.moveToNext()) {
+                            val name = if (nameCol != -1) cursor.getString(nameCol) ?: "" else ""
+                            val size = if (sizeCol != -1) cursor.getLong(sizeCol) else 0L
+
+                            if (size > 30_000L && (name.contains(paddedNum) || name.contains(surah.arabicName))) {
+                                val id = cursor.getLong(idCol)
+                                val itemUri = ContentUris.withAppendedId(contentUri, id)
+
+                                context.contentResolver.openInputStream(itemUri)?.use { input ->
+                                    val parent = targetFile.parentFile
+                                    if (parent != null && !parent.exists()) {
+                                        parent.mkdirs()
+                                    }
+                                    val tempTarget = File(targetFile.parentFile, "${targetFile.name}.tmp")
+                                    FileOutputStream(tempTarget).use { output ->
+                                        input.copyTo(output)
+                                    }
+                                    if (tempTarget.exists() && tempTarget.length() > 30_000L) {
+                                        if (targetFile.exists()) targetFile.delete()
+                                        tempTarget.renameTo(targetFile)
+                                        return true
+                                    } else {
+                                        tempTarget.delete()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (_: Throwable) {}
+            }
+        } catch (_: Throwable) {}
+        return false
+    }
+
+    private fun migrateToPrimaryStorage(sourceFile: File, targetFile: File): Boolean {
+        if (sourceFile.absolutePath == targetFile.absolutePath) return true
+        return try {
+            val parent = targetFile.parentFile
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs()
+            }
+            if (sourceFile.canRead()) {
+                sourceFile.copyTo(targetFile, overwrite = true)
+                targetFile.exists() && targetFile.length() > 30_000L
+            } else {
+                false
+            }
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    fun getLocalSurahFile(context: Context, surah: Surah): File {
+        // 1. Fast cache lookup
+        val cached = resolvedFiles[surah.number]
+        if (cached != null && cached.exists() && cached.length() > 30_000L && cached.canRead()) {
+            return cached
+        }
+
+        val primaryName = String.format(Locale.US, "%03d - %s - المنشاوي 1967.mp3", surah.number, surah.arabicName)
+        val appMusicDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC) ?: context.filesDir
+        val primaryFile = File(appMusicDir, primaryName)
+
+        // 2. Primary app-specific file check
+        try {
+            if (primaryFile.exists() && primaryFile.length() > 30_000L && primaryFile.canRead()) {
+                resolvedFiles[surah.number] = primaryFile
                 return primaryFile
             }
         } catch (_: Throwable) {}
 
-        // 2. Legacy public Downloads storage fallback (safely guarded)
+        // 3. Check candidate filenames in appMusicDir
+        for (cand in getCandidateFileNames(surah)) {
+            try {
+                val f = File(appMusicDir, cand)
+                if (f.exists() && f.length() > 30_000L && f.canRead()) {
+                    resolvedFiles[surah.number] = f
+                    return f
+                }
+            } catch (_: Throwable) {}
+        }
+
+        // 4. Search across all candidate directories
+        val candidateDirs = getCandidateSearchDirectories(context)
+        for (dir in candidateDirs) {
+            try {
+                if (!dir.exists() || !dir.isDirectory) continue
+
+                // Check candidate names in this directory
+                for (candName in getCandidateFileNames(surah)) {
+                    val candFile = File(dir, candName)
+                    if (candFile.exists() && candFile.length() > 30_000L && candFile.canRead()) {
+                        val migrated = migrateToPrimaryStorage(candFile, primaryFile)
+                        val result = if (migrated) primaryFile else candFile
+                        resolvedFiles[surah.number] = result
+                        return result
+                    }
+                }
+
+                // If not found by candidate name, check directory listing
+                val files = dir.listFiles() ?: continue
+                for (f in files) {
+                    if (isFileForSurah(f, surah) && f.canRead()) {
+                        val migrated = migrateToPrimaryStorage(f, primaryFile)
+                        val result = if (migrated) primaryFile else f
+                        resolvedFiles[surah.number] = result
+                        return result
+                    }
+                }
+            } catch (_: Throwable) {}
+        }
+
+        // 5. Fallback: Query MediaStore
         try {
-            val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
-            val pubFile = File(pubDir, fileName)
-            if (pubFile.exists() && pubFile.length() > 50_000) {
-                return pubFile
+            if (querySurahInMediaStore(context, surah, primaryFile)) {
+                resolvedFiles[surah.number] = primaryFile
+                return primaryFile
             }
         } catch (_: Throwable) {}
 
@@ -72,6 +330,7 @@ object DownloadHelper {
                 appMusicDir.mkdirs()
             }
         } catch (_: Throwable) {}
+
         return primaryFile
     }
 
@@ -104,7 +363,7 @@ object DownloadHelper {
     fun isSurahDownloaded(context: Context, surah: Surah): Boolean {
         return try {
             val file = getLocalSurahFile(context, surah)
-            file.exists() && file.length() > 50_000
+            file.exists() && file.length() > 30_000L && file.canRead()
         } catch (_: Throwable) {
             false
         }
@@ -125,7 +384,7 @@ object DownloadHelper {
             val initialMap = mutableMapOf<Int, DownloadProgress>()
             surahs.forEach { s ->
                 val localFile = getLocalSurahFile(context, s)
-                if (localFile.exists() && localFile.length() > 150_000) {
+                if (localFile.exists() && localFile.length() > 30_000L && localFile.canRead()) {
                     val len = localFile.length()
                     initialMap[s.number] = DownloadProgress(
                         surahNumber = s.number,
@@ -141,7 +400,7 @@ object DownloadHelper {
                     )
                 } else {
                     val partFile = getPartSurahFile(context, s)
-                    if (partFile.exists() && partFile.length() > 50_000) {
+                    if (partFile.exists() && partFile.length() > 30_000L) {
                         val partLen = partFile.length()
                         val estTotal = 15L * 1024 * 1024
                         val pct = ((partLen * 100) / estTotal).toInt().coerceIn(1, 99)
@@ -326,9 +585,10 @@ object DownloadHelper {
                     }
 
                     // Verify file size and rename part to final target file
-                    if (partFile.exists() && partFile.length() > 100_000) {
+                    if (partFile.exists() && partFile.length() > 30_000L) {
                         if (targetFile.exists()) targetFile.delete()
                         partFile.renameTo(targetFile)
+                        resolvedFiles[surah.number] = targetFile
 
                         try {
                             MediaScannerConnection.scanFile(
@@ -501,24 +761,31 @@ object DownloadHelper {
      * Deletes the completed offline surah file to free storage space and returns to idle download state.
      */
     fun deleteDownloadedSurah(context: Context, surah: Surah) {
+        resolvedFiles.remove(surah.number)
         val targetFile = getLocalSurahFile(context, surah)
         val partFile = getPartSurahFile(context, surah)
 
         if (targetFile.exists()) targetFile.delete()
         if (partFile.exists()) partFile.delete()
 
-        // Also clean legacy public location if present
-        val pubDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "مصحف المنشاوي 1967")
-        val fileName = String.format(Locale.US, "%03d - %s - المنشاوي 1967.mp3", surah.number, surah.arabicName)
-        val pubFile = File(pubDir, fileName)
-        if (pubFile.exists()) pubFile.delete()
-        val pubPart = File(pubDir, "$fileName.part")
-        if (pubPart.exists()) pubPart.delete()
+        // Also clean any candidate files in candidate locations
+        try {
+            val candidateDirs = getCandidateSearchDirectories(context)
+            for (dir in candidateDirs) {
+                if (!dir.exists() || !dir.isDirectory) continue
+                for (candName in getCandidateFileNames(surah)) {
+                    val f = File(dir, candName)
+                    if (f.exists()) f.delete()
+                    val part = File(dir, "$candName.part")
+                    if (part.exists()) part.delete()
+                }
+            }
+        } catch (_: Throwable) {}
 
         try {
             MediaScannerConnection.scanFile(
                 context,
-                arrayOf(targetFile.absolutePath, pubFile.absolutePath),
+                arrayOf(targetFile.absolutePath),
                 arrayOf("audio/mpeg"),
                 null
             )

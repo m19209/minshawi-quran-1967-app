@@ -39,6 +39,7 @@ object AudioPlaybackManager {
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     private var progressTrackerJob: Job? = null
     private var isUsingFallback: Boolean = false
+    private var isCurrentOfflineTrack: Boolean = false
 
     // Playback States
     private val _currentSurah = MutableStateFlow<Surah?>(QuranRepository.getSurah(1))
@@ -77,11 +78,16 @@ object AudioPlaybackManager {
 
     private fun onBufferingStarted() {
         bufferingWatchdogJob?.cancel()
+        // If current track is offline, do not invoke network watchdog
+        if (isCurrentOfflineTrack) return
+
         bufferingWatchdogJob = scope.launch {
             delay(3500)
-            if (_isLoading.value && !isUsingFallback) {
+            if (_isLoading.value && !isUsingFallback && !isCurrentOfflineTrack) {
                 val surah = _currentSurah.value ?: return@launch
-                if (surah.fallbackAudioUrl.isNotEmpty()) {
+                val context = appContext
+                val networkAvailable = context == null || DownloadHelper.isNetworkAvailable(context)
+                if (surah.fallbackAudioUrl.isNotEmpty() && networkAvailable) {
                     isUsingFallback = true
                     val currentPos = _currentPosition.value
                     playDirectUrl(surah, surah.fallbackAudioUrl, currentPos)
@@ -158,7 +164,9 @@ object AudioPlaybackManager {
                         _isLoading.value = false
                         onBufferingStopped()
                         val surah = _currentSurah.value ?: return
-                        if (!isUsingFallback && surah.fallbackAudioUrl.isNotEmpty()) {
+                        val context = appContext
+                        val networkAvailable = context == null || DownloadHelper.isNetworkAvailable(context)
+                        if (!isUsingFallback && surah.fallbackAudioUrl.isNotEmpty() && !isCurrentOfflineTrack && networkAvailable) {
                             isUsingFallback = true
                             val savedPos = _currentPosition.value
                             playDirectUrl(surah, surah.fallbackAudioUrl, savedPos)
@@ -183,7 +191,8 @@ object AudioPlaybackManager {
 
         // Check if the Surah is downloaded locally on device
         val localFile = if (context != null) DownloadHelper.getLocalSurahFile(context, surah) else null
-        val isOffline = localFile != null && localFile.exists() && localFile.length() > 50_000L
+        val isOffline = localFile != null && localFile.exists() && localFile.length() > 30_000L && localFile.canRead()
+        isCurrentOfflineTrack = isOffline
 
         val mediaUri = if (isOffline) {
             Uri.fromFile(localFile)
@@ -229,6 +238,7 @@ object AudioPlaybackManager {
     private fun playDirectUrl(surah: Surah, url: String, startPositionMs: Long = 0L) {
         val player = exoPlayer ?: return
         _currentSurah.value = surah
+        isCurrentOfflineTrack = false
 
         val metadata = MediaMetadata.Builder()
             .setTitle(surah.arabicName)
@@ -266,8 +276,10 @@ object AudioPlaybackManager {
                 _currentPosition.value = 0L
                 playSurah(surah, 0L)
             } else if (player.playbackState == Player.STATE_BUFFERING) {
-                // User pressed play while stuck in buffering -> immediately switch to fast Cloudflare CDN!
-                if (!isUsingFallback && surah.fallbackAudioUrl.isNotEmpty()) {
+                // If stuck in buffering while playing online, switch to fast Cloudflare CDN!
+                val context = appContext
+                val networkAvailable = context == null || DownloadHelper.isNetworkAvailable(context)
+                if (!isCurrentOfflineTrack && !isUsingFallback && surah.fallbackAudioUrl.isNotEmpty() && networkAvailable) {
                     isUsingFallback = true
                     playDirectUrl(surah, surah.fallbackAudioUrl, _currentPosition.value)
                 } else {
