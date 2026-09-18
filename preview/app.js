@@ -203,6 +203,12 @@ function svgCheck(size) {
     return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
 }
 
+/** Check circle completed icon */
+function svgCheckCircle(size) {
+    size = size || 18;
+    return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+}
+
 /** Repeat arrows, optionally with "1" badge for single-surah mode */
 function svgRepeat(withOne) {
     var label = withOne ? '<text x="12" y="14.5" font-size="6.5" font-family="Arial,sans-serif" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">1</text>' : '';
@@ -749,8 +755,8 @@ function renderDownloadCol(index, surah) {
     }
     if (state && state.completed) {
         return '<div class="download-action-col">' +
-               '  <button class="btn-item-download completed" data-index="' + index + '" title="تم التحميل ومحفوظة بدون إنترنت" aria-label="تم التحميل ومحفوظة بدون إنترنت">' +
-               svgCheck(15) +
+               '  <button class="btn-item-download completed" data-index="' + index + '" title="تم التحميل بنجاح - محفوظة بدون إنترنت" aria-label="تم التحميل بنجاح - محفوظة بدون إنترنت">' +
+               svgCheckCircle(18) +
                '  </button>' +
                '</div>';
     }
@@ -767,7 +773,7 @@ function triggerDownloadSurah(index, btn) {
 
     var state = downloadStates[index];
     if (state && state.completed) {
-        showToast('سورة ' + surah.arabicName + ' تم حفظها بالفعل في جهازك للاستماع بدون إنترنت');
+        showToast('✓ سورة ' + surah.arabicName + ' محفوظة على جهازك وتعمل بدون إنترنت');
         return;
     }
     if (state && state.downloading) {
@@ -806,7 +812,7 @@ function triggerDownloadSurah(index, btn) {
             st.completed = true;
             st.progress = 100;
             st.speed = '';
-            showToast('تم تحميل سورة ' + surah.arabicName + ' بنجاح (محفوظة بدون إنترنت)');
+            showToast('✓ تم اكتمال تحميل سورة ' + surah.arabicName + ' بنجاح وهي الآن متاحة بدون إنترنت');
         }
 
         updateSurahItemDom(index);
@@ -819,6 +825,15 @@ function updateSurahItemDom(index) {
 
     var surah = SURAHS_DATA[index];
     var state = downloadStates[index];
+
+    var metaEl = item.querySelector('.surah-meta-text');
+    if (metaEl && surah) {
+        var typeLabel = surah.isMakki ? 'مكية' : 'مدنية';
+        metaEl.innerHTML = surah.englishName + ' \u2022 ' + typeLabel + ' (' + surah.ayahCount + ' آية)' +
+            (state && state.completed ? ' \u2022 <span style="color:var(--gold-primary);font-weight:600;">محفوظة بدون إنترنت \u2713</span>' : '') +
+            (state && state.downloading && state.downloadedFormatted ? ' \u2022 <span style="color:var(--gold-primary)">' + state.downloadedFormatted + '</span>' : '');
+    }
+
     var actionsContainer = item.querySelector('.surah-item-actions');
     if (actionsContainer && surah) {
         var existingCol = actionsContainer.querySelector('.download-action-col');
@@ -834,6 +849,13 @@ function updateSurahItemDom(index) {
             newBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 triggerDownloadSurah(index, newBtn);
+            });
+        }
+        var completedBtn = actionsContainer.querySelector('.btn-item-download.completed');
+        if (completedBtn) {
+            completedBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                showToast('✓ سورة ' + surah.arabicName + ' محفوظة على جهازك وتعمل بدون إنترنت');
             });
         }
     }
@@ -853,6 +875,7 @@ function updateSurahItemDom(index) {
         if (existingBar) existingBar.remove();
     }
 }
+
 
 // =========================================================================
 // 9. SURAHS LIST RENDERING & SEARCH
@@ -897,7 +920,10 @@ function renderSurahs() {
             '<div class="surah-num-badge">' + surah.number + '</div>' +
             '<div class="surah-names-col">' +
             '<h4>سورة ' + surah.arabicName + '</h4>' +
-            '<div class="surah-meta-text">' + surah.englishName + ' \u2022 ' + typeLabel + ' (' + surah.ayahCount + ' آية)</div>' +
+            '<div class="surah-meta-text">' + surah.englishName + ' \u2022 ' + typeLabel + ' (' + surah.ayahCount + ' آية)' +
+            (state && state.completed ? ' \u2022 <span style="color:var(--gold-primary);font-weight:600;">محفوظة بدون إنترنت \u2713</span>' : '') +
+            (state && state.downloading && state.downloadedFormatted ? ' \u2022 <span style="color:var(--gold-primary)">' + state.downloadedFormatted + '</span>' : '') +
+            '</div>' +
             '</div></div>' +
             '<div class="surah-item-actions">' +
             renderDownloadCol(idx, surah) +
@@ -928,6 +954,15 @@ function renderSurahs() {
             e.stopPropagation();
             var idx = parseInt(btn.dataset.index);
             triggerDownloadSurah(idx, btn);
+        });
+    });
+
+    surahsList.querySelectorAll('.btn-item-download.completed').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var idx = parseInt(btn.dataset.index);
+            var surah = SURAHS_DATA[idx];
+            if (surah) showToast('✓ سورة ' + surah.arabicName + ' محفوظة على جهازك وتعمل بدون إنترنت');
         });
     });
 }

@@ -1,5 +1,6 @@
 package com.minshawi.quran1967.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -338,6 +339,7 @@ fun SurahListItem(
     onDownloadClicked: () -> Unit,
     onItemClicked: () -> Unit
 ) {
+    val context = LocalContext.current
     val isDownloading = downloadState?.isDownloading == true
     val isCompleted = downloadState?.isCompleted == true
 
@@ -415,7 +417,26 @@ fun SurahListItem(
                         text = "${surah.englishName} • ${if (surah.isMakki) "مكية" else "مدنية"} (${surah.ayahCount} آية)",
                         style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
                     )
-                    if (isDownloading && downloadState != null) {
+                    if (isCompleted) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_check),
+                                contentDescription = null,
+                                tint = GoldAccent,
+                                modifier = Modifier.size(11.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = "محفوظة بدون إنترنت",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    color = GoldAccent,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            )
+                        }
+                    } else if (isDownloading && downloadState != null) {
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = downloadState.downloadedFormatted,
@@ -482,20 +503,27 @@ fun SurahListItem(
                             )
                         }
                     } else if (isCompleted) {
-                        // Downloaded Offline State (Checkmark Badge)
+                        // Downloaded Offline State (Dedicated Completed Badge Icon)
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(CircleShape)
-                                .background(EmeraldDark)
-                                .border(1.dp, GoldAccent.copy(alpha = 0.6f), CircleShape)
+                                .background(GoldAccent.copy(alpha = 0.15f))
+                                .border(1.2.dp, GoldAccent, CircleShape)
+                                .clickable {
+                                    Toast.makeText(
+                                        context,
+                                        "سورة ${surah.arabicName} محفوظة مسبقاً وتعمل بدون إنترنت",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.ic_check),
-                                contentDescription = "تم التنزيل محلياً",
+                                painter = painterResource(R.drawable.ic_check_circle),
+                                contentDescription = "تم التنزيل بنجاح - محفوظة بدون إنترنت",
                                 tint = GoldAccent,
-                                modifier = Modifier.size(19.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         }
                     } else {
@@ -517,6 +545,7 @@ fun SurahListItem(
                         }
                     }
                 }
+
 
                 // Action Play / Pause Icon
                 IconButton(

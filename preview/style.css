@@ -797,10 +797,17 @@ body {
 }
 
 .btn-item-download.completed {
-    background: rgba(212, 175, 55, 0.15);
-    border-color: var(--gold-primary);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid var(--gold-primary);
     color: var(--gold-primary);
-    cursor: default;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+    transition: var(--transition-fast);
+}
+
+.btn-item-download.completed:hover {
+    background: rgba(212, 175, 55, 0.3);
+    transform: scale(1.08);
 }
 
 .download-action-col {
