@@ -649,6 +649,30 @@ quranAudio.addEventListener('error', function () {
     }
 });
 
+// Buffering Watchdog: if stuck in buffering/waiting for more than 3.5s, auto-switch to fast CDN mirror
+var streamBufferingTimer = null;
+quranAudio.addEventListener('waiting', function () {
+    clearTimeout(streamBufferingTimer);
+    var surah = SURAHS_DATA[currentSurahIndex];
+    if (surah && quranAudio.src !== surah.urlFallback) {
+        streamBufferingTimer = setTimeout(function () {
+            if (quranAudio.readyState < 3 && quranAudio.src !== surah.urlFallback) {
+                var cur = quranAudio.currentTime || 0;
+                console.warn('Buffering watchdog triggered, switching to fast CDN mirror at', cur);
+                quranAudio.src = surah.urlFallback;
+                quranAudio.currentTime = cur;
+                quranAudio.play().then(function () { updatePlayState(true); });
+            }
+        }, 3500);
+    }
+});
+quranAudio.addEventListener('playing', function () {
+    clearTimeout(streamBufferingTimer);
+});
+quranAudio.addEventListener('canplay', function () {
+    clearTimeout(streamBufferingTimer);
+});
+
 // Immediately update duration when metadata is ready
 quranAudio.addEventListener('loadedmetadata', function () {
     var cur = quranAudio.currentTime || 0;

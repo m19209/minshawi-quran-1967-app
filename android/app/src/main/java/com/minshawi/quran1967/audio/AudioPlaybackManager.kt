@@ -9,6 +9,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import com.minshawi.quran1967.data.QuranRepository
 import com.minshawi.quran1967.data.Surah
@@ -72,6 +73,28 @@ object AudioPlaybackManager {
     private var savedPositionBeforeAzan: Long = 0L
     private var savedSurahBeforeAzan: Surah? = null
 
+    private var bufferingWatchdogJob: Job? = null
+
+    private fun onBufferingStarted() {
+        bufferingWatchdogJob?.cancel()
+        bufferingWatchdogJob = scope.launch {
+            delay(3500)
+            if (_isLoading.value && !isUsingFallback) {
+                val surah = _currentSurah.value ?: return@launch
+                if (surah.fallbackAudioUrl.isNotEmpty()) {
+                    isUsingFallback = true
+                    val currentPos = _currentPosition.value
+                    playDirectUrl(surah, surah.fallbackAudioUrl, currentPos)
+                }
+            }
+        }
+    }
+
+    private fun onBufferingStopped() {
+        bufferingWatchdogJob?.cancel()
+        bufferingWatchdogJob = null
+    }
+
     fun initialize(context: Context) {
         appContext = context.applicationContext
         if (exoPlayer != null) return
@@ -81,7 +104,19 @@ object AudioPlaybackManager {
             .setContentType(C.CONTENT_TYPE_MUSIC)
             .build()
 
+        // Ultra-fast playback initialization: start playing as soon as 500ms of audio is buffered!
+        val loadControl = DefaultLoadControl.Builder()
+            .setBufferDurationsMs(
+                /* minBufferMs = */ 15_000,
+                /* maxBufferMs = */ 50_000,
+                /* bufferForPlaybackMs = */ 500,
+                /* bufferForPlaybackAfterRebufferMs = */ 1_000
+            )
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .build()
+
         exoPlayer = ExoPlayer.Builder(context.applicationContext)
+            .setLoadControl(loadControl)
             .setAudioAttributes(audioAttributes, true)
             .setHandleAudioBecomingNoisy(true)
             .setWakeMode(C.WAKE_MODE_NETWORK)
@@ -98,23 +133,30 @@ object AudioPlaybackManager {
 
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         when (playbackState) {
-                            Player.STATE_BUFFERING -> _isLoading.value = true
+                            Player.STATE_BUFFERING -> {
+                                _isLoading.value = true
+                                onBufferingStarted()
+                            }
                             Player.STATE_READY -> {
                                 _isLoading.value = false
+                                onBufferingStopped()
                                 _duration.value = duration.coerceAtLeast(0L)
                             }
                             Player.STATE_ENDED -> {
                                 _isLoading.value = false
+                                onBufferingStopped()
                                 handleTrackEnded()
                             }
                             Player.STATE_IDLE -> {
                                 _isLoading.value = false
+                                onBufferingStopped()
                             }
                         }
                     }
 
                     override fun onPlayerError(error: PlaybackException) {
                         _isLoading.value = false
+                        onBufferingStopped()
                         val surah = _currentSurah.value ?: return
                         if (!isUsingFallback && surah.fallbackAudioUrl.isNotEmpty()) {
                             isUsingFallback = true
@@ -137,6 +179,7 @@ object AudioPlaybackManager {
         val isDifferentSurah = _currentSurah.value?.number != surah.number
         _currentSurah.value = surah
         isUsingFallback = false
+        onBufferingStopped()
 
         // Check if the Surah is downloaded locally on device
         val localFile = if (context != null) DownloadHelper.getLocalSurahFile(context, surah) else null
@@ -222,6 +265,14 @@ object AudioPlaybackManager {
             } else if (player.playbackState == Player.STATE_ENDED) {
                 _currentPosition.value = 0L
                 playSurah(surah, 0L)
+            } else if (player.playbackState == Player.STATE_BUFFERING) {
+                // User pressed play while stuck in buffering -> immediately switch to fast Cloudflare CDN!
+                if (!isUsingFallback && surah.fallbackAudioUrl.isNotEmpty()) {
+                    isUsingFallback = true
+                    playDirectUrl(surah, surah.fallbackAudioUrl, _currentPosition.value)
+                } else {
+                    player.play()
+                }
             } else {
                 playSurah(surah, _currentPosition.value)
             }
