@@ -197,6 +197,12 @@ function svgDownload(size) {
     return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
 }
 
+/** Checkmark icon */
+function svgCheck(size) {
+    size = size || 16;
+    return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+}
+
 /** Repeat arrows, optionally with "1" badge for single-surah mode */
 function svgRepeat(withOne) {
     var label = withOne ? '<text x="12" y="14.5" font-size="6.5" font-family="Arial,sans-serif" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">1</text>' : '';
@@ -704,6 +710,151 @@ btnRepeat.addEventListener('click', function () {
 });
 
 // =========================================================================
+// 8.5 DOWNLOAD MANAGER & LIVE MEASUREMENT (v1.2.5)
+// =========================================================================
+var downloadStates = {};
+
+function showToast(message) {
+    var toast = document.getElementById('appToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'appToast';
+        toast.className = 'app-toast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(function () {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+function renderDownloadCol(index, surah) {
+    var state = downloadStates[index];
+    if (state && state.downloading) {
+        var radius = 14;
+        var circ = 2 * Math.PI * radius;
+        var offset = circ - (state.progress / 100) * circ;
+        return '<div class="download-action-col">' +
+               '  <div class="download-progress-circle" title="جاري التحميل... ' + state.progress + '%">' +
+               '    <svg width="34" height="34" viewBox="0 0 34 34">' +
+               '      <circle class="circle-bg" cx="17" cy="17" r="' + radius + '" fill="none" stroke-width="2.5"></circle>' +
+               '      <circle class="circle-bar" cx="17" cy="17" r="' + radius + '" fill="none" stroke-width="2.5" stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset + '"></circle>' +
+               '    </svg>' +
+               '    <span class="pct-text">' + state.progress + '%</span>' +
+               '  </div>' +
+               '  <span class="download-speed-text">' + (state.speed || '2.4 MB/s') + '</span>' +
+               '</div>';
+    }
+    if (state && state.completed) {
+        return '<div class="download-action-col">' +
+               '  <button class="btn-item-download completed" data-index="' + index + '" title="تم التحميل ومحفوظة بدون إنترنت" aria-label="تم التحميل ومحفوظة بدون إنترنت">' +
+               svgCheck(15) +
+               '  </button>' +
+               '</div>';
+    }
+    return '<div class="download-action-col">' +
+           '  <button class="btn-item-download" data-index="' + index + '" title="تحميل سورة ' + surah.arabicName + '" aria-label="تحميل سورة ' + surah.arabicName + '">' +
+           svgDownload(14) +
+           '  </button>' +
+           '</div>';
+}
+
+function triggerDownloadSurah(index, btn) {
+    var surah = SURAHS_DATA[index];
+    if (!surah) return;
+
+    var state = downloadStates[index];
+    if (state && state.completed) {
+        showToast('سورة ' + surah.arabicName + ' تم حفظها بالفعل في جهازك للاستماع بدون إنترنت');
+        return;
+    }
+    if (state && state.downloading) {
+        return;
+    }
+
+    var estMb = Math.max(1.5, Math.round(surah.duration * 0.008 * 10) / 10);
+    downloadStates[index] = {
+        downloading: true,
+        completed: false,
+        progress: 1,
+        speed: '2.1 MB/s',
+        totalMb: estMb,
+        downloadedFormatted: '0.1 / ' + estMb.toFixed(1) + ' MB'
+    };
+
+    updateSurahItemDom(index);
+
+    var interval = setInterval(function () {
+        var st = downloadStates[index];
+        if (!st || !st.downloading) {
+            clearInterval(interval);
+            return;
+        }
+
+        var addPct = Math.floor(Math.random() * 8) + 7;
+        st.progress = Math.min(100, st.progress + addPct);
+        var curSpeed = (2.2 + (Math.random() * 0.8 - 0.4)).toFixed(1);
+        st.speed = curSpeed + ' MB/s';
+        var downloaded = ((st.progress / 100) * st.totalMb).toFixed(1);
+        st.downloadedFormatted = downloaded + ' / ' + st.totalMb.toFixed(1) + ' MB';
+
+        if (st.progress >= 100) {
+            clearInterval(interval);
+            st.downloading = false;
+            st.completed = true;
+            st.progress = 100;
+            st.speed = '';
+            showToast('تم تحميل سورة ' + surah.arabicName + ' بنجاح (محفوظة بدون إنترنت)');
+        }
+
+        updateSurahItemDom(index);
+    }, 280);
+}
+
+function updateSurahItemDom(index) {
+    var item = surahsList.querySelector('.surah-item[data-index="' + index + '"]');
+    if (!item) return;
+
+    var surah = SURAHS_DATA[index];
+    var state = downloadStates[index];
+    var actionsContainer = item.querySelector('.surah-item-actions');
+    if (actionsContainer && surah) {
+        var existingCol = actionsContainer.querySelector('.download-action-col');
+        var newColHtml = renderDownloadCol(index, surah);
+        if (existingCol) {
+            existingCol.outerHTML = newColHtml;
+        } else {
+            actionsContainer.insertAdjacentHTML('afterbegin', newColHtml);
+        }
+
+        var newBtn = actionsContainer.querySelector('.btn-item-download:not(.completed)');
+        if (newBtn) {
+            newBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                triggerDownloadSurah(index, newBtn);
+            });
+        }
+    }
+
+    var existingBar = item.querySelector('.surah-card-progress-bar');
+    if (state && state.downloading) {
+        if (!existingBar) {
+            var bar = document.createElement('div');
+            bar.className = 'surah-card-progress-bar';
+            bar.innerHTML = '<div class="surah-card-progress-fill" style="width: ' + state.progress + '%;"></div>';
+            item.appendChild(bar);
+        } else {
+            var fill = existingBar.querySelector('.surah-card-progress-fill');
+            if (fill) fill.style.width = state.progress + '%';
+        }
+    } else {
+        if (existingBar) existingBar.remove();
+    }
+}
+
+// =========================================================================
 // 9. SURAHS LIST RENDERING & SEARCH
 // =========================================================================
 
@@ -731,12 +882,17 @@ function renderSurahs() {
     }
 
     surahsList.innerHTML = filtered.map(function (surah) {
-        var isCurrent = (surah.number - 1) === currentSurahIndex;
+        var idx = surah.number - 1;
+        var isCurrent = idx === currentSurahIndex;
         var playState = (isCurrent && isPlaying) ? svgPause(15) : svgPlay(15);
         var playLabel = (isCurrent && isPlaying ? 'إيقاف مؤقت' : 'تشغيل') + ' سورة ' + surah.arabicName;
         var typeLabel = surah.isMakki ? 'مكية' : 'مدنية';
+        var state = downloadStates[idx];
+        var isDownloading = state && state.downloading;
+        var progressBarHtml = isDownloading ? 
+            '<div class="surah-card-progress-bar"><div class="surah-card-progress-fill" style="width: ' + state.progress + '%;"></div></div>' : '';
 
-        return '<div class="surah-item ' + (isCurrent ? 'current-active' : '') + '" data-index="' + (surah.number - 1) + '">' +
+        return '<div class="surah-item ' + (isCurrent ? 'current-active' : '') + '" data-index="' + idx + '" style="position: relative;">' +
             '<div class="surah-right">' +
             '<div class="surah-num-badge">' + surah.number + '</div>' +
             '<div class="surah-names-col">' +
@@ -744,15 +900,16 @@ function renderSurahs() {
             '<div class="surah-meta-text">' + surah.englishName + ' \u2022 ' + typeLabel + ' (' + surah.ayahCount + ' آية)</div>' +
             '</div></div>' +
             '<div class="surah-item-actions">' +
-            '<button class="btn-item-download" data-index="' + (surah.number - 1) + '" title="تحميل سورة ' + surah.arabicName + '" aria-label="تحميل سورة ' + surah.arabicName + '">' + svgDownload(14) + '</button>' +
-            '<button class="btn-item-play" data-index="' + (surah.number - 1) + '" aria-label="' + playLabel + '">' + playState + '</button>' +
+            renderDownloadCol(idx, surah) +
+            '<button class="btn-item-play" data-index="' + idx + '" aria-label="' + playLabel + '">' + playState + '</button>' +
             '</div>' +
+            progressBarHtml +
             '</div>';
     }).join('');
 
     surahsList.querySelectorAll('.surah-item').forEach(function (el) {
         el.addEventListener('click', function (e) {
-            if (e.target.closest('.btn-item-download') || e.target.closest('.btn-item-play')) return;
+            if (e.target.closest('.btn-item-download') || e.target.closest('.download-action-col') || e.target.closest('.btn-item-play')) return;
             var idx = parseInt(el.dataset.index);
             if (idx === currentSurahIndex) { togglePlay(); } else { loadSurah(idx, true); }
         });
@@ -766,7 +923,7 @@ function renderSurahs() {
         });
     });
 
-    surahsList.querySelectorAll('.btn-item-download').forEach(function (btn) {
+    surahsList.querySelectorAll('.btn-item-download:not(.completed)').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
             var idx = parseInt(btn.dataset.index);

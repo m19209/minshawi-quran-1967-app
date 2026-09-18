@@ -796,15 +796,80 @@ body {
     transition: var(--transition-fast);
 }
 
-.btn-item-download:hover {
-    background: rgba(212, 175, 55, 0.25);
+.btn-item-download.completed {
+    background: rgba(212, 175, 55, 0.15);
     border-color: var(--gold-primary);
-    transform: scale(1.08);
+    color: var(--gold-primary);
+    cursor: default;
 }
 
-.btn-item-download.downloading {
-    opacity: 0.6;
-    animation: pulse 1s infinite alternate;
+.download-action-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+}
+
+.download-progress-circle {
+    width: 36px;
+    height: 36px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.download-progress-circle svg {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+}
+
+.download-progress-circle .circle-bg {
+    stroke: rgba(212, 175, 55, 0.15);
+}
+
+.download-progress-circle .circle-bar {
+    stroke: var(--gold-primary);
+    transition: stroke-dashoffset 0.25s ease;
+}
+
+.download-progress-circle .pct-text {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold-light);
+    z-index: 2;
+    font-variant-numeric: tabular-nums;
+}
+
+.download-speed-text {
+    font-size: 8px;
+    font-weight: 600;
+    color: var(--gold-primary);
+    margin-top: 2px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.surah-card-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2.5px;
+    background: rgba(212, 175, 55, 0.15);
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.surah-card-progress-fill {
+    height: 100%;
+    background: var(--gold-primary);
+    box-shadow: 0 0 8px var(--gold-primary);
+    transition: width 0.25s ease;
 }
 
 /* Azan Active Full-screen Overlay */
@@ -1143,4 +1208,31 @@ body {
     .phone-frame {
         border-radius: 0;
     }
+}
+
+/* Toast Notifications */
+.app-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(10, 38, 28, 0.96);
+    border: 1px solid var(--border-gold);
+    color: var(--gold-light);
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 9999;
+    text-align: center;
+    max-width: 90%;
+}
+.app-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }

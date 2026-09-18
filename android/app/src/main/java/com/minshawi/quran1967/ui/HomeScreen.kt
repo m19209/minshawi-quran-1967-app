@@ -34,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +63,7 @@ import com.minshawi.quran1967.ui.components.PlayerBottomSheet
 import com.minshawi.quran1967.ui.components.PrayerCard
 import com.minshawi.quran1967.ui.components.SettingsDialog
 import com.minshawi.quran1967.util.DownloadHelper
+import com.minshawi.quran1967.util.DownloadProgress
 import com.minshawi.quran1967.ui.theme.BackgroundDark
 import com.minshawi.quran1967.ui.theme.CardBorder
 import com.minshawi.quran1967.ui.theme.EmeraldCard
@@ -88,6 +90,13 @@ fun HomeScreen() {
     val isLoading by AudioPlaybackManager.isLoading.collectAsState()
     val isAzanActive by AudioPlaybackManager.isAzanActive.collectAsState()
     val activeAzanPrayerName by AudioPlaybackManager.activeAzanPrayerName.collectAsState()
+
+    // Download States Tracking
+    val downloadStates by DownloadHelper.downloadStates.collectAsState()
+
+    LaunchedEffect(Unit) {
+        DownloadHelper.checkInitialDownloadedState(context, QuranRepository.surahs)
+    }
 
     // Location & Prayer Time State
     var selectedLocation by remember { mutableStateOf(CityLocation.EGYPT_CAIRO) }
@@ -246,6 +255,7 @@ fun HomeScreen() {
                         surah = surah,
                         isCurrentlyPlaying = isCurrent && isPlaying,
                         isSelected = isCurrent,
+                        downloadState = downloadStates[surah.number],
                         onPlayClicked = {
                             if (isCurrent) {
                                 AudioPlaybackManager.togglePlayPause()
@@ -323,10 +333,14 @@ fun SurahListItem(
     surah: Surah,
     isCurrentlyPlaying: Boolean,
     isSelected: Boolean,
+    downloadState: DownloadProgress?,
     onPlayClicked: () -> Unit,
     onDownloadClicked: () -> Unit,
     onItemClicked: () -> Unit
 ) {
+    val isDownloading = downloadState?.isDownloading == true
+    val isCompleted = downloadState?.isCompleted == true
+
     val itemModifier = if (isSelected) {
         Modifier
             .fillMaxWidth()
@@ -335,7 +349,6 @@ fun SurahListItem(
             .background(EmeraldCard)
             .border(1.dp, SelectedBorderColor, ItemShape)
             .clickable(onClick = onItemClicked)
-            .padding(horizontal = 14.dp, vertical = 12.dp)
     } else {
         Modifier
             .fillMaxWidth()
@@ -343,7 +356,6 @@ fun SurahListItem(
             .clip(ItemShape)
             .background(EmeraldSurface)
             .clickable(onClick = onItemClicked)
-            .padding(horizontal = 14.dp, vertical = 12.dp)
     }
 
     val badgeModifier = if (isSelected) {
@@ -360,86 +372,182 @@ fun SurahListItem(
             .border(1.dp, CardBorder, BadgeShape)
     }
 
-    Row(
-        modifier = itemModifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = itemModifier
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f, fill = false)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Surah Number inside Islamic Badge
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = badgeModifier
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f, fill = false)
             ) {
-                Text(
-                    text = surah.number.toString(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = if (isSelected) GoldAccent else TextLight
+                // Surah Number inside Islamic Badge
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = badgeModifier
+                ) {
+                    Text(
+                        text = surah.number.toString(),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) GoldAccent else TextLight
+                        )
                     )
-                )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // Surah Name and Metadata
+                Column {
+                    Text(
+                        text = "سورة ${surah.arabicName}",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) GoldLight else TextLight
+                        )
+                    )
+                    Text(
+                        text = "${surah.englishName} • ${if (surah.isMakki) "مكية" else "مدنية"} (${surah.ayahCount} آية)",
+                        style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
+                    )
+                    if (isDownloading && downloadState != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = downloadState.downloadedFormatted,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = GoldLight,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            // Action Buttons: Download / Progress & Play / Pause
+            // (Maintaining strict 14.dp spacing between the two buttons)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                // Download / Progress Column
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    if (isDownloading && downloadState != null) {
+                        // Circular Progress with % inside
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(EmeraldDark)
+                                .border(1.dp, GoldAccent.copy(alpha = 0.5f), CircleShape)
+                                .clickable { onDownloadClicked() }
+                        ) {
+                            CircularProgressIndicator(
+                                progress = { downloadState.progress },
+                                modifier = Modifier.size(38.dp),
+                                color = GoldAccent,
+                                strokeWidth = 2.5.dp,
+                                trackColor = EmeraldCard
+                            )
+                            Text(
+                                text = "${downloadState.percentage}%",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GoldLight
+                                )
+                            )
+                        }
 
-            // Surah Name and Metadata
-            Column {
-                Text(
-                    text = "سورة ${surah.arabicName}",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = if (isSelected) GoldLight else TextLight
+                        // Real-time downloading rate measurement (e.g. 2.4 MB/s)
+                        if (downloadState.speedFormatted.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = downloadState.speedFormatted,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 8.5.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = GoldAccent
+                                ),
+                                maxLines = 1
+                            )
+                        }
+                    } else if (isCompleted) {
+                        // Downloaded Offline State (Checkmark Badge)
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(EmeraldDark)
+                                .border(1.dp, GoldAccent.copy(alpha = 0.6f), CircleShape)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_check),
+                                contentDescription = "تم التنزيل محلياً",
+                                tint = GoldAccent,
+                                modifier = Modifier.size(19.dp)
+                            )
+                        }
+                    } else {
+                        // Normal Download Ready Button
+                        IconButton(
+                            onClick = onDownloadClicked,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(EmeraldDark)
+                                .border(1.dp, GoldAccent.copy(alpha = 0.35f), CircleShape)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_download),
+                                contentDescription = "تحميل سورة ${surah.arabicName}",
+                                tint = GoldAccent,
+                                modifier = Modifier.size(19.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Action Play / Pause Icon
+                IconButton(
+                    onClick = onPlayClicked,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(if (isSelected) GoldAccent else EmeraldDark)
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            if (isCurrentlyPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
+                        ),
+                        contentDescription = if (isCurrentlyPlaying) "إيقاف مؤقت" else "تشغيل",
+                        tint = if (isSelected) EmeraldDark else GoldAccent,
+                        modifier = Modifier.size(22.dp)
                     )
-                )
-                Text(
-                    text = "${surah.englishName} • ${if (surah.isMakki) "مكية" else "مدنية"} (${surah.ayahCount} آية)",
-                    style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary)
-                )
+                }
             }
         }
 
-        // Action Buttons: Download & Play / Pause
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            // Download Button for this Surah
-            IconButton(
-                onClick = onDownloadClicked,
+        // Glowing progress bar along bottom of card while downloading
+        if (isDownloading && downloadState != null) {
+            LinearProgressIndicator(
+                progress = { downloadState.progress },
                 modifier = Modifier
-                    .size(38.dp)
-                    .clip(CircleShape)
-                    .background(EmeraldDark)
-                    .border(1.dp, GoldAccent.copy(alpha = 0.35f), CircleShape)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_download),
-                    contentDescription = "تحميل سورة ${surah.arabicName}",
-                    tint = GoldAccent,
-                    modifier = Modifier.size(19.dp)
-                )
-            }
-
-            // Action Play / Pause Icon
-            IconButton(
-                onClick = onPlayClicked,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(if (isSelected) GoldAccent else EmeraldDark)
-            ) {
-                Icon(
-                    painter = painterResource(
-                        if (isCurrentlyPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
-                    ),
-                    contentDescription = if (isCurrentlyPlaying) "إيقاف مؤقت" else "تشغيل",
-                    tint = if (isSelected) EmeraldDark else GoldAccent,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
+                    .fillMaxWidth()
+                    .height(2.5.dp),
+                color = GoldAccent,
+                trackColor = EmeraldDark
+            )
         }
     }
 }
