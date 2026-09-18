@@ -402,6 +402,7 @@ fun SurahListItem(
     onCancelDownloadClicked: () -> Unit,
     onCompletedOptionsClicked: () -> Unit,
     onItemClicked: () -> Unit
+) {
     val isDownloading = downloadState?.isDownloading == true
     val isPaused = downloadState?.isPaused == true
     val isCompleted = downloadState?.isCompleted == true

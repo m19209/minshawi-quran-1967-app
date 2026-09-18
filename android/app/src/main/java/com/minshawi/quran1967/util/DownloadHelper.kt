@@ -469,7 +469,7 @@ object DownloadHelper {
                     // Check pre-scanned files across directories
                     for ((_, files) in dirFilesMap) {
                         for (f in files) {
-                            if (isFileMatchingSurah(f, s)) {
+                            if (isFileForSurah(f, s)) {
                                 migrateToPrimaryStorage(f, primaryFile)
                                 resolvedFiles[s.number] = primaryFile
                                 val len = primaryFile.length()
