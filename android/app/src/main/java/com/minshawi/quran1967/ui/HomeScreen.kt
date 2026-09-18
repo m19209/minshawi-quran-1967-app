@@ -1,9 +1,12 @@
 package com.minshawi.quran1967.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +25,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,11 +36,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -181,60 +192,71 @@ fun HomeScreen() {
             }
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 14.dp),
+                contentPadding = PaddingValues(top = 10.dp, bottom = 16.dp)
             ) {
-                // 1. Prayer Times Banner Card with Real-time 1s Ticker
-                item(key = "prayer_card", contentType = "header") {
+                // 1. Top Header Banner: Daily Azan Times & Next Prayer Countdown
+                item(key = "header_prayer_card", contentType = "header") {
                     PrayerCard(
                         schedule = prayerSchedule,
-                        onSelectLocationClicked = { showSettingsDialog = true },
-                        onRefreshSchedule = { prayerScheduleKey++ },
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        currentLocation = selectedLocation,
+                        onOpenSettings = { showSettingsDialog = true },
+                        onSelectLocationClicked = { showSettingsDialog = true }
                     )
+                    Spacer(modifier = Modifier.height(14.dp))
                 }
 
-                // 2. Search Bar
-                item(key = "search_bar", contentType = "header") {
+                // 2. Search Box for 114 Surahs
+                item(key = "search_box", contentType = "search") {
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 12.dp),
+                            .height(52.dp),
                         placeholder = {
-                            Text("ابحث باسم السورة أو رقمها (مثال: الكهف، 18)...", color = TextSecondary)
+                            Text(
+                                text = "ابحث برقم أو اسم السورة (مثل: الكهف أو 18)...",
+                                style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
+                            )
                         },
                         leadingIcon = {
-                            Icon(Icons.Default.Search, contentDescription = null, tint = GoldAccent)
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "بحث",
+                                tint = GoldAccent
+                            )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = GoldAccent,
                             unfocusedBorderColor = CardBorder,
-                            focusedContainerColor = EmeraldSurface,
-                            unfocusedContainerColor = EmeraldSurface,
+                            focusedContainerColor = EmeraldDark,
+                            unfocusedContainerColor = EmeraldDark,
                             focusedTextColor = TextLight,
                             unfocusedTextColor = TextLight
                         ),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
+                    Spacer(modifier = Modifier.height(14.dp))
                 }
 
-                // 3. Section Title & 1967 Tag
-                item(key = "section_title", contentType = "header") {
+                // 3. Section Title with Count
+                item(key = "section_title", contentType = "title") {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(horizontal = 4.dp, vertical = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = "سور القرآن الكريم (${filteredSurahs.size})",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                color = GoldLight,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = GoldLight
                             )
                         )
                         Text(
@@ -266,6 +288,12 @@ fun HomeScreen() {
                         },
                         onDownloadClicked = {
                             DownloadHelper.downloadSurah(context, surah)
+                        },
+                        onCancelDownloadClicked = {
+                            DownloadHelper.cancelDownload(surah.number, surah.arabicName, context)
+                        },
+                        onCompletedOptionsClicked = {
+                            selectedCompletedSurah = surah
                         },
                         onItemClicked = {
                             AudioPlaybackManager.playSurah(surah)
@@ -327,8 +355,35 @@ fun HomeScreen() {
             }
         )
     }
+
+    // Modal: Completed Surah Options (Play Offline / File Info / Delete)
+    if (selectedCompletedSurah != null) {
+        val completedSurah = selectedCompletedSurah!!
+        val file = DownloadHelper.getLocalSurahFile(context, completedSurah)
+        val sizeMb = if (file.exists()) {
+            String.format(java.util.Locale.US, "%.1f MB", file.length() / (1024f * 1024f))
+        } else {
+            "~18.5 MB"
+        }
+
+        DownloadedSurahDialog(
+            surah = completedSurah,
+            fileSizeMb = sizeMb,
+            onPlayOffline = {
+                AudioPlaybackManager.playSurah(completedSurah)
+                showFullPlayerSheet = true
+            },
+            onDeleteSurah = {
+                DownloadHelper.deleteDownloadedSurah(context, completedSurah)
+            },
+            onDismiss = {
+                selectedCompletedSurah = null
+            }
+        )
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SurahListItem(
     surah: Surah,
@@ -337,10 +392,13 @@ fun SurahListItem(
     downloadState: DownloadProgress?,
     onPlayClicked: () -> Unit,
     onDownloadClicked: () -> Unit,
+    onCancelDownloadClicked: () -> Unit,
+    onCompletedOptionsClicked: () -> Unit,
     onItemClicked: () -> Unit
 ) {
     val context = LocalContext.current
     val isDownloading = downloadState?.isDownloading == true
+    val isPaused = downloadState?.isPaused == true
     val isCompleted = downloadState?.isCompleted == true
 
     val itemModifier = if (isSelected) {
@@ -428,7 +486,7 @@ fun SurahListItem(
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = "محفوظة بدون إنترنت",
+                                text = "محفوظة بدون إنترنت ✓",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     color = GoldAccent,
                                     fontSize = 10.sp,
@@ -436,6 +494,16 @@ fun SurahListItem(
                                 )
                             )
                         }
+                    } else if (isPaused && downloadState != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "متوقف مؤقتاً (${downloadState.percentage}%) • اضغط للاستئناف",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = GoldAccent,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
                     } else if (isDownloading && downloadState != null) {
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
@@ -462,7 +530,7 @@ fun SurahListItem(
                     verticalArrangement = Arrangement.Center
                 ) {
                     if (isDownloading && downloadState != null) {
-                        // Circular Progress with % inside
+                        // Downloading Active: Click to Pause, Long-Click to Cancel
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
@@ -470,7 +538,10 @@ fun SurahListItem(
                                 .clip(CircleShape)
                                 .background(EmeraldDark)
                                 .border(1.dp, GoldAccent.copy(alpha = 0.5f), CircleShape)
-                                .clickable { onDownloadClicked() }
+                                .combinedClickable(
+                                    onClick = onDownloadClicked,
+                                    onLongClick = onCancelDownloadClicked
+                                )
                         ) {
                             CircularProgressIndicator(
                                 progress = { downloadState.progress },
@@ -502,8 +573,47 @@ fun SurahListItem(
                                 maxLines = 1
                             )
                         }
+                    } else if (isPaused && downloadState != null) {
+                        // Paused State: Click to Resume, Long-Click to Cancel
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(EmeraldDark)
+                                .border(1.2.dp, GoldAccent, CircleShape)
+                                .combinedClickable(
+                                    onClick = onDownloadClicked,
+                                    onLongClick = onCancelDownloadClicked
+                                )
+                        ) {
+                            CircularProgressIndicator(
+                                progress = { downloadState.progress },
+                                modifier = Modifier.size(38.dp),
+                                color = GoldAccent.copy(alpha = 0.6f),
+                                strokeWidth = 2.5.dp,
+                                trackColor = EmeraldCard
+                            )
+                            Icon(
+                                painter = painterResource(R.drawable.ic_play_arrow),
+                                contentDescription = "استئناف التنزيل",
+                                tint = GoldAccent,
+                                modifier = Modifier.size(17.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "متوقف مؤقتاً",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = GoldLight
+                            ),
+                            maxLines = 1
+                        )
                     } else if (isCompleted) {
-                        // Downloaded Offline State (Dedicated Completed Badge Icon)
+                        // Downloaded Offline State: Click to open full actions dialog (Play / Info / Delete)
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
@@ -511,17 +621,11 @@ fun SurahListItem(
                                 .clip(CircleShape)
                                 .background(GoldAccent.copy(alpha = 0.15f))
                                 .border(1.2.dp, GoldAccent, CircleShape)
-                                .clickable {
-                                    Toast.makeText(
-                                        context,
-                                        "سورة ${surah.arabicName} محفوظة مسبقاً وتعمل بدون إنترنت",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                                .clickable { onCompletedOptionsClicked() }
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_check_circle),
-                                contentDescription = "تم التنزيل بنجاح - محفوظة بدون إنترنت",
+                                contentDescription = "خيارات السورة المحفوظة",
                                 tint = GoldAccent,
                                 modifier = Modifier.size(22.dp)
                             )
@@ -546,7 +650,6 @@ fun SurahListItem(
                     }
                 }
 
-
                 // Action Play / Pause Icon
                 IconButton(
                     onClick = onPlayClicked,
@@ -567,7 +670,7 @@ fun SurahListItem(
             }
         }
 
-        // Glowing progress bar along bottom of card while downloading
+        // Glowing progress bar along bottom of card while downloading or paused
         if (isDownloading && downloadState != null) {
             LinearProgressIndicator(
                 progress = { downloadState.progress },
@@ -577,6 +680,169 @@ fun SurahListItem(
                 color = GoldAccent,
                 trackColor = EmeraldDark
             )
+        } else if (isPaused && downloadState != null) {
+            LinearProgressIndicator(
+                progress = { downloadState.progress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(2.5.dp),
+                color = GoldAccent.copy(alpha = 0.45f),
+                trackColor = EmeraldDark
+            )
+        }
+    }
+}
+
+@Composable
+fun DownloadedSurahDialog(
+    surah: Surah,
+    fileSizeMb: String,
+    onPlayOffline: () -> Unit,
+    onDeleteSurah: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = EmeraldCard),
+            border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.5f)),
+            modifier = Modifier
+                .fillMaxWidth(0.92f)
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Header Icon
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(CircleShape)
+                        .background(GoldAccent.copy(alpha = 0.15f))
+                        .border(1.5.dp, GoldAccent, CircleShape)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_check_circle),
+                        contentDescription = null,
+                        tint = GoldAccent,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "سورة ${surah.arabicName}",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = GoldLight
+                    )
+                )
+
+                Text(
+                    text = "محفوظة على جهازك وتعمل بدون إنترنت",
+                    style = MaterialTheme.typography.bodySmall.copy(color = TextSecondary),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Info Box (Size & Format)
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = EmeraldDark),
+                    border = BorderStroke(1.dp, CardBorder),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("حجم الملف:", style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary))
+                            Text(fileSizeMb, style = MaterialTheme.typography.labelSmall.copy(color = GoldLight, fontWeight = FontWeight.Bold))
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("جودة التسجيل:", style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary))
+                            Text("ختمة 1967 النقية الأصلية", style = MaterialTheme.typography.labelSmall.copy(color = GoldAccent))
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Action 1: Play Surah Offline
+                Button(
+                    onClick = {
+                        onPlayOffline()
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = GoldAccent),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(46.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_play_arrow),
+                        contentDescription = null,
+                        tint = EmeraldDark,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "تشغيل السورة أوفلاين",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = EmeraldDark
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Action 2: Delete Surah from device
+                OutlinedButton(
+                    onClick = {
+                        onDeleteSurah()
+                        onDismiss()
+                    },
+                    border = BorderStroke(1.dp, Color(0xFFEF4444).copy(alpha = 0.6f)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                ) {
+                    Text(
+                        text = "حذف السورة لتوفير المساحة",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = Color(0xFFEF4444),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Action 3: Cancel / Close
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "إغلاق",
+                        style = MaterialTheme.typography.labelMedium.copy(color = TextSecondary)
+                    )
+                }
+            }
         }
     }
 }

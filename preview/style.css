@@ -851,7 +851,8 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-.download-progress-circle .stop-icon {
+.download-progress-circle .stop-icon,
+.download-progress-circle .pause-icon {
     display: none;
     z-index: 2;
 }
@@ -860,15 +861,33 @@ body {
     display: none;
 }
 
-.download-progress-circle.downloading:hover .stop-icon {
+.download-progress-circle.downloading:hover .stop-icon,
+.download-progress-circle.downloading:hover .pause-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ef4444;
+    color: var(--gold-light);
 }
 
 .download-progress-circle.downloading:hover .circle-bar {
-    stroke: #ef4444;
+    stroke: var(--gold-light);
+}
+
+.download-progress-circle.paused {
+    opacity: 0.9;
+}
+
+.download-progress-circle.paused:hover {
+    opacity: 1;
+    transform: scale(1.06);
+}
+
+.download-progress-circle.paused .resume-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold-primary);
+    z-index: 2;
 }
 
 .download-speed-text {
@@ -878,6 +897,11 @@ body {
     margin-top: 2px;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+}
+
+.download-speed-text.paused-speed {
+    color: rgba(212, 175, 55, 0.7);
+    font-weight: 500;
 }
 
 .surah-card-progress-bar {
@@ -897,6 +921,11 @@ body {
     background: var(--gold-primary);
     box-shadow: 0 0 8px var(--gold-primary);
     transition: width 0.25s ease;
+}
+
+.surah-card-progress-bar.paused .surah-card-progress-fill {
+    background: rgba(212, 175, 55, 0.5);
+    box-shadow: none;
 }
 
 /* Azan Active Full-screen Overlay */
